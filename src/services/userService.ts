@@ -1,72 +1,60 @@
-import { User } from "../models/user";
-import api from "../interceptors/axiosInterceptor";
+import axios from "axios";
+import type { User } from "../models/user";
 
-const API_URL = import.meta.env.VITE_API_URL+"/users"||""; // Reemplaza con la URL real
 
-// Obtener todos los usuarios
-export const getUsers = async (): Promise<User[]> => {
-    console.log("aqui "+API_URL)
-    try {
-        const response = await api.get("/users");
-        return await response.data;
-    } catch (error) {
-        console.error(error);
-        return [];
+const API_URL = import.meta.env.VITE_API_URL + "/users" || "";
+
+class UserService {
+    async getUsers(): Promise<User[]> {
+        try {
+            const response = await axios.get<User[]>(API_URL);
+            return response.data;
+        } catch (error) {
+            console.error("Error al obtener usuarios:", error);
+            return [];
+        }
     }
-};
 
-// Obtener un usuario por ID
-export const getUserById = async (id: number): Promise<User | null> => {
-    try {
-        const response = await fetch(`${API_URL}/${id}`);
-        if (!response.ok) throw new Error("Usuario no encontrado");
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return null;
+    async getUserById(id: number): Promise<User | null> {
+        try {
+            const response = await axios.get<User>(`${API_URL}/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error("Usuario no encontrado:", error);
+            return null;
+        }
     }
-};
 
-// Crear un nuevo usuario
-export const createUser = async (user: Omit<User, "id">): Promise<User | null> => {
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(user),
-        });
-        if (!response.ok) throw new Error("Error al crear usuario");
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return null;
+    async createUserRole(user: Omit<User, "id">): Promise<User | null> {
+        try {
+            const response = await axios.post<User>(API_URL, user);
+            return response.data;
+        } catch (error) {
+            console.error("Error al crear rol de usuario:", error);
+            return null;
+        }
     }
-};
 
-// Actualizar usuario
-export const updateUser = async (id: number, user: Partial<User>): Promise<User | null> => {
-    try {
-        const response = await fetch(`${API_URL}/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(user),
-        });
-        if (!response.ok) throw new Error("Error al actualizar usuario");
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return null;
+    async updateUser(id: number, user: Partial<User>): Promise<User| null> {
+        try {
+            const response = await axios.put<User>(`${API_URL}/${id}`, user);
+            return response.data;
+        } catch (error) {
+            console.error("Error al actualizar rol de usuario:", error);
+            return null;
+        }
     }
-};
 
-// Eliminar usuario
-export const deleteUser = async (id: number): Promise<boolean> => {
-    try {
-        const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-        if (!response.ok) throw new Error("Error al eliminar usuario");
-        return true;
-    } catch (error) {
-        console.error(error);
-        return false;
+    async deleteUser(id: number): Promise<boolean> {
+        try {
+            await axios.delete(`${API_URL}/${id}`);
+            return true;
+        } catch (error) {
+            console.error("Error al eliminar usuario:", error);
+            return false;
+        }
     }
-};
+}
+
+// Exportamos una instancia de la clase para reutilizarla
+export const userService = new UserService();

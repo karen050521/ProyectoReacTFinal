@@ -11,7 +11,7 @@ const Tables = lazy(() => import('../pages/Tables'));
 const Alerts = lazy(() => import('../pages/UiElements/Alerts'));
 const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
 
-const ListUsers = lazy(() => import('../pages/Users/page'));
+const ListUsers = lazy(() => import('../pages/Users/list'));
 const CreatetUser = lazy(() => import('../pages/Users/create'));
 const UpdatetUser = lazy(() => import('../pages/Users/update'));
 
