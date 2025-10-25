@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Profile } from "../models/Profile";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/users" || "";
+const API_URL = (import.meta as any).env.VITE_API_URL + "/profiles" || "/profiles";
 
 class ProfileService {
     async getProfiles(): Promise<Profile[]> {
@@ -57,3 +57,10 @@ class ProfileService {
 
 // Exportamos una instancia de la clase para reutilizarla
 export const profileService = new ProfileService();
+
+// Named exports para compatibilidad con imports existentes
+export const getProfiles = () => profileService.getProfiles();
+export const getProfileById = (id: number) => profileService.getProfileById(id);
+export const createProfile = (profile: Omit<Profile, "id">) => profileService.createProfile(profile);
+export const updateProfile = (id: number, profile: Partial<Profile>) => profileService.updateProfile(id, profile);
+export const deleteProfile = (id: number) => profileService.deleteProfile(id);

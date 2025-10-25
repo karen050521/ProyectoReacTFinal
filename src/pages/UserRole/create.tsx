@@ -1,10 +1,10 @@
 "use client"
-import React, { useState } from 'react'; // Asegúrate de importar useState
-import { User } from '../../models/user';
+import React, { useEffect, useState } from "react"; // Asegúrate de importar useState
+import { UserRole } from '../../models/UserRole';
 import UserFormValidator from '../../components/Users/UserFormValidator'; 
 
 import Swal from 'sweetalert2';
-import  { createUser }  from "../../services/userService";
+import  { createUserRole }  from "../../services/userRoleService";
 import Breadcrumb from '../../components/Breadcrumb';
 import { useNavigate } from "react-router-dom";
 
@@ -14,18 +14,18 @@ const App = () => {
     // Estado para almacenar el usuario a editar
 
     // Lógica de creación
-    const handleCreateUser = async (user: User) => {
+    const handleCreateUserRole = async (userRole: UserRole) => {
 
         try {
-            const createdUser = await createUser(user);
-            if (createdUser) {
+            const createdUserRole = await createUserRole(userRole);
+            if (createdUserRole) {
                 Swal.fire({
                     title: "Completado",
                     text: "Se ha creado correctamente el registro",
                     icon: "success",
                     timer: 3000
                 })
-                console.log("Usuario creado con éxito:", createdUser);
+                console.log("Usuario creado con éxito:", createdUserRole);
                 navigate("/users");
             } else {
                 Swal.fire({
@@ -46,11 +46,11 @@ const App = () => {
     };
     return (
         <div>
-            {/* Formulario para crear un nuevo usuario */}
-            <h2>Create User</h2>
-                <Breadcrumb pageName="Crear Usuario" />
+            {/* Formulario para crear un nuevo rol de usuario */}
+            <h2>Create User Role</h2>
+                <Breadcrumb pageName="Crear Rol de Usuario" />
                 <UserFormValidator
-                    handleCreate={handleCreateUser}
+                    handleCreate={handleCreateUserRole}
                     mode={1} // 1 significa creación
                 />
         </div>

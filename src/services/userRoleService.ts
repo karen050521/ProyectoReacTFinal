@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { UserRole } from "../models/UserRole";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/users" || "";
+const API_URL = (import.meta as any).env.VITE_API_URL + "/user-roles" || "";
 
 class UserRoleService {
     async getUserRoles(): Promise<UserRole[]> {

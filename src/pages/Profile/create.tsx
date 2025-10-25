@@ -1,32 +1,30 @@
 "use client"
-import React, { useState } from 'react'; // Asegúrate de importar useState
-import { User } from '../../models/user';
-import UserFormValidator from '../../components/Users/UserFormValidator'; 
+import React from "react";
+import { Profile } from '../../models/Profile';
+import ProfileFormValidator from '../../components/profile/profileForm'; 
 
 import Swal from 'sweetalert2';
-import  { createUser }  from "../../services/userService";
+import { createProfile } from "../../services/profileService";
 import Breadcrumb from '../../components/Breadcrumb';
 import { useNavigate } from "react-router-dom";
 
 const App = () => {
     const navigate = useNavigate();
 
-    // Estado para almacenar el usuario a editar
-
     // Lógica de creación
-    const handleCreateUser = async (user: User) => {
+    const handleCreateProfile = async (profile: Profile) => {
 
         try {
-            const createdUser = await createUser(user);
-            if (createdUser) {
+            const createdProfile = await createProfile(profile);
+            if (createdProfile) {
                 Swal.fire({
                     title: "Completado",
                     text: "Se ha creado correctamente el registro",
                     icon: "success",
                     timer: 3000
                 })
-                console.log("Usuario creado con éxito:", createdUser);
-                navigate("/users");
+                console.log("Perfil creado con éxito:", createdProfile);
+                navigate("/profiles");
             } else {
                 Swal.fire({
                     title: "Error",
@@ -46,11 +44,11 @@ const App = () => {
     };
     return (
         <div>
-            {/* Formulario para crear un nuevo usuario */}
-            <h2>Create User</h2>
-                <Breadcrumb pageName="Crear Usuario" />
-                <UserFormValidator
-                    handleCreate={handleCreateUser}
+            {/* Formulario para crear un nuevo perfil */}
+            <h2>Create Profile</h2>
+                <Breadcrumb pageName="Crear Perfil" />
+                <ProfileFormValidator
+                    handleCreate={handleCreateProfile}
                     mode={1} // 1 significa creación
                 />
         </div>
