@@ -1,37 +1,38 @@
 import React, { useEffect, useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { User } from "../../models/user";
-import {userService} from "../../services/userService";
+import {Address } from "../../models/Address";
+import {addressService} from "../../services/addressService";
 
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
-const ListUsers: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    
+const ListAddresses: React.FC = () => {
+    const [Addresses, setAddresses] = useState<Address[]>([]);
+
    const navigate = useNavigate();
 
     useEffect(() => {
 
         fetchData();
-        console.log("Users fetched:", users);
+        console.log("Addresses fetched:", Addresses);
     }, []);
 
     const fetchData = async () => {
         try {
-            const users = await userService.getUsers();
-            setUsers(users);
+            const addresses = await addressService.getAddresses();
+            setAddresses(addresses);
         } catch (error) {
-            console.error("Error fetching users:", error);
+            console.error("Error fetching addresses:", error);
         }
     };
 
-    const handleAction = (action: string, item: User) => {
+    const handleAction = (action: string, item: Record<string, any>) => {
+        const address = item as Address;
         if (action === "edit") {
-            console.log("Edit user:", item);
-            navigate(`/users/update/${item.id}`);
+            console.log("Edit address:", address);
+            navigate(`/addresses/update/${address.id}`);
         } else if (action === "delete") {
-            console.log("Delete user:", item);
+            console.log("Delete address:", address);
             Swal.fire({
                 title: "Eliminación",
                 text: "Está seguro de querer eliminar el registro?",
@@ -43,7 +44,7 @@ const ListUsers: React.FC = () => {
                 cancelButtonText: "No"
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const success = await userService.deleteUser(item.id!);
+                    const success = await addressService.deleteAddress(address.id!);
                     if (success) {
                         Swal.fire({
                             title: "Eliminado",
@@ -56,14 +57,13 @@ const ListUsers: React.FC = () => {
                 }
             });
         }
-    };
-
-    return (
+    };  
+     return (
         <div>
-            <h2>User List</h2>
+            <h2>Address List</h2>
             <GenericTable
-                data={users}
-                columns={["id", "name", "email"]}
+                data={Addresses}
+                columns={["id", "user_id", "street", "number", "latitude", "longitude", "created_at", "updated_at"]}
                 actions={[
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },
@@ -74,4 +74,4 @@ const ListUsers: React.FC = () => {
     );
 };
 
-export default ListUsers;
+export default ListAddresses;

@@ -11,12 +11,12 @@ class SecurityService extends EventTarget {
         super();
 
         this.keySession = 'session';
-        this.API_URL = import.meta.env.VITE_API_URL || ""; // Reemplaza con la URL real
+        this.API_URL = (import.meta as any).env.VITE_API_URL || ""; // Reemplaza con la URL real
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             this.user = JSON.parse(storedUser);
         } else {
-            this.user = {}
+            this.user = {} as User;
         }
     }
 

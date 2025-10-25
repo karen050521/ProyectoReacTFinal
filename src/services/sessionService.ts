@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Session } from "../models/Session";
 
-const API_URL = import.meta.env.VITE_API_URL + "/sessions" || "";
+const API_URL = (import.meta as any).env.VITE_API_URL + "/sessions" || "";
 
 class SessionService {
     async getSessions(): Promise<Session[]> {
@@ -44,7 +44,7 @@ class SessionService {
         }
     }
 
-    async deleteSession(id: number): Promise<boolean> {
+    async deleteSession(id: string): Promise<boolean> {
         try {
             await axios.delete(`${API_URL}/${id}`);
             return true;

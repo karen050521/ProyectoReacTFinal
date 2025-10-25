@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Address } from "../models/Address";
 
-const API_URL = import.meta.env.VITE_API_URL + "/addresses" || "";
+const API_URL = (import.meta as any).VITE_API_URL + "/addresses" || "";
 
 class AddressService {
     async getAddresses(): Promise<Address[]> {

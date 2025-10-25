@@ -1,37 +1,37 @@
 import React, { useEffect, useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { User } from "../../models/user";
-import {userService} from "../../services/userService";
+import { Session } from "../../models/Session";
+import {sessionService} from "../../services/sessionService";
 
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
-const ListUsers: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    
+const ListSessions: React.FC = () => {
+    const [sessions, setSessions] = useState<Session[]>([]);
+
    const navigate = useNavigate();
 
     useEffect(() => {
 
         fetchData();
-        console.log("Users fetched:", users);
+        console.log("Sessions fetched:", sessions);
     }, []);
 
     const fetchData = async () => {
         try {
-            const users = await userService.getUsers();
-            setUsers(users);
+            const sessions = await sessionService.getSessions();
+            setSessions(sessions);
         } catch (error) {
-            console.error("Error fetching users:", error);
+            console.error("Error fetching sessions:", error);
         }
     };
 
-    const handleAction = (action: string, item: User) => {
+    const handleAction = (action: string, item: Session) => {
         if (action === "edit") {
-            console.log("Edit user:", item);
-            navigate(`/users/update/${item.id}`);
+            console.log("Edit session:", item);
+            navigate(`/sessions/update/${item.id}`);
         } else if (action === "delete") {
-            console.log("Delete user:", item);
+            console.log("Delete session:", item);
             Swal.fire({
                 title: "Eliminación",
                 text: "Está seguro de querer eliminar el registro?",
@@ -43,7 +43,7 @@ const ListUsers: React.FC = () => {
                 cancelButtonText: "No"
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const success = await userService.deleteUser(item.id!);
+                    const success = await sessionService.deleteSession(item.id!);
                     if (success) {
                         Swal.fire({
                             title: "Eliminado",
@@ -60,10 +60,10 @@ const ListUsers: React.FC = () => {
 
     return (
         <div>
-            <h2>User List</h2>
+            <h2>Session List</h2>
             <GenericTable
-                data={users}
-                columns={["id", "name", "email"]}
+                data={sessions}
+                columns={["id", "name", "startAt", "endAt"]}
                 actions={[
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },
@@ -74,4 +74,4 @@ const ListUsers: React.FC = () => {
     );
 };
 
-export default ListUsers;
+export default ListSessions;

@@ -599,7 +599,7 @@ En segundo lugar se realizará la implementación de la clase que servirá como 
 import axios from "axios";
 import { User } from "../models/User";
 
-const API_URL = import.meta.env.VITE_API_URL + "/users" || "";
+const API_URL = (import.meta as any).env.VITE_API_URL + "/users" || "";
 
 class UserService {
     async getUsers(): Promise<User[]> {
@@ -1153,7 +1153,7 @@ class SecurityService extends EventTarget {
         super();
 
         this.keySession = 'session';
-        this.API_URL = import.meta.env.VITE_API_URL || ""; // Reemplaza con la URL real
+        this.API_URL = (import.meta as any).env.VITE_API_URL || ""; // Reemplaza con la URL real
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             this.user = JSON.parse(storedUser);
@@ -2306,7 +2306,7 @@ import axios from "axios";
 const EXCLUDED_ROUTES = ["/login", "/register"];
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL, // Cambia la URL base según tu API
+    baseURL: (import.meta as any).env.VITE_API_URL, // Cambia la URL base según tu API
     headers: { "Content-Type": "application/json" },
 });
 

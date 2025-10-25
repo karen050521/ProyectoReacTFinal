@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { UserRole } from "../models/UserRole";
 
-const API_URL = import.meta.env.VITE_API_URL + "/users" || "";
+const API_URL = (import.meta as any).env.VITE_API_URL + "/users" || "";
 
 class UserRoleService {
     async getUserRoles(): Promise<UserRole[]> {
@@ -44,7 +44,7 @@ class UserRoleService {
         }
     }
 
-    async deleteUserRole(id: number): Promise<boolean> {
+    async deleteUserRole(id: string): Promise<boolean> {
         try {
             await axios.delete(`${API_URL}/${id}`);
             return true;

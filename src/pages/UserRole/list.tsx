@@ -1,35 +1,35 @@
 import React, { useEffect, useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { User } from "../../models/user";
-import {userService} from "../../services/userService";
+import { UserRole } from "../../models/UserRole";
+import {userRoleService} from "../../services/userRoleService";
 
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
-const ListUsers: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    
+const ListUserRoles: React.FC = () => {
+    const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+
    const navigate = useNavigate();
 
     useEffect(() => {
 
         fetchData();
-        console.log("Users fetched:", users);
+        console.log("UserRoles fetched:", userRoles);
     }, []);
 
     const fetchData = async () => {
         try {
-            const users = await userService.getUsers();
-            setUsers(users);
+            const userRoles = await userRoleService.getUserRoles();
+            setUserRoles(userRoles);
         } catch (error) {
-            console.error("Error fetching users:", error);
+            console.error("Error fetching user roles:", error);
         }
     };
 
-    const handleAction = (action: string, item: User) => {
+    const handleAction = (action: string, item: UserRole) => {
         if (action === "edit") {
-            console.log("Edit user:", item);
-            navigate(`/users/update/${item.id}`);
+            console.log("Edit user role:", item);
+            navigate(`/user-roles/update/${item.id}`);
         } else if (action === "delete") {
             console.log("Delete user:", item);
             Swal.fire({
@@ -43,7 +43,7 @@ const ListUsers: React.FC = () => {
                 cancelButtonText: "No"
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const success = await userService.deleteUser(item.id!);
+                    const success = await userRoleService.deleteUserRole(item.id!);
                     if (success) {
                         Swal.fire({
                             title: "Eliminado",
@@ -62,7 +62,7 @@ const ListUsers: React.FC = () => {
         <div>
             <h2>User List</h2>
             <GenericTable
-                data={users}
+                data={userRoles}
                 columns={["id", "name", "email"]}
                 actions={[
                     { name: "edit", label: "Edit" },
@@ -74,4 +74,4 @@ const ListUsers: React.FC = () => {
     );
 };
 
-export default ListUsers;
+export default ListUserRoles;

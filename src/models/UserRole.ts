@@ -1,5 +1,3 @@
-import { Role } from "./Role";
-import { User } from "./user";
 
 export interface UserRole {
    id?: string; // UUID
