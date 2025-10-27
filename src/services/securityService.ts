@@ -2,6 +2,12 @@ import { User } from "../models/user";
 import { store } from "../store/store";
 import { setUser } from "../store/userSlice";
 
+// Interfaz específica para login
+interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
 class SecurityService extends EventTarget {
     keySession: string;
     API_URL: string;
@@ -16,11 +22,11 @@ class SecurityService extends EventTarget {
         if (storedUser) {
             this.user = JSON.parse(storedUser);
         } else {
-            this.user = {} as User;
+            this.user = { name: '', email: '' } as User;
         }
     }
 
-    async login(user: User) {
+    async login(credentials: LoginCredentials) {
         console.log("llamando api " + `${this.API_URL}/login`)
         try {
 
@@ -29,7 +35,7 @@ class SecurityService extends EventTarget {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(user),
+                body: JSON.stringify(credentials),
             });
 
             if (!response.ok) {
@@ -49,7 +55,7 @@ class SecurityService extends EventTarget {
         return this.user;
     }
     logout() {
-        this.user = {};
+        this.user = { name: '', email: '' } as User;
         localStorage.removeItem("user");
         this.dispatchEvent(new CustomEvent("userChange", { detail: null }));
     }
