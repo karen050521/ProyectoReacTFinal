@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Permission } from "../models/Permission";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/permissions" || "";
+const API_URL = (import.meta as any).env.CLASES_NUBES + "/permissions" || "/permissions";
 
 class PermissionService {
     async getPermissions(): Promise<Permission[]> {
@@ -57,3 +57,10 @@ class PermissionService {
 
 // Exportamos una instancia de la clase para reutilizarla
 export const permissionService = new PermissionService  ();
+
+// Named exports para compatibilidad con imports existentes
+export const getPermissions = () => permissionService.getPermissions();
+export const getPermissionById = (id: number) => permissionService.getPermissionById(id);
+export const createPermission = (permission: Omit<Permission, "id">) => permissionService.createPermission(permission);
+export const updatePermission = (id: number, permission: Partial<Permission>) => permissionService.updatePermission(id, permission);
+export const deletePermission = (id: number) => permissionService.deletePermission(id);

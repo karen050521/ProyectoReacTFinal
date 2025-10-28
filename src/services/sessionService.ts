@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Session } from "../models/Session";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/sessions" || "";
+const API_URL = (import.meta as any).env.CLASES_NUBES + "/sessions" || "/sessions";
 
 class SessionService {
     async getSessions(): Promise<Session[]> {
@@ -14,7 +14,7 @@ class SessionService {
         }
     }
 
-    async getSessionById(id: number): Promise<Session | null> {
+    async getSessionById(id: string): Promise<Session | null> {
         try {
             const response = await axios.get<Session>(`${API_URL}/${id}`);
             return response.data;
@@ -34,7 +34,7 @@ class SessionService {
         }
     }
 
-    async updateSession(id: number, session: Partial<Session>): Promise<Session | null> {
+    async updateSession(id: string, session: Partial<Session>): Promise<Session | null> {
         try {
             const response = await axios.put<Session>(`${API_URL}/${id}`, session);
             return response.data;
@@ -57,3 +57,10 @@ class SessionService {
 
 // Exportamos una instancia de la clase para reutilizarla
 export const sessionService = new SessionService();
+
+// Named exports para compatibilidad con imports existentes
+export const getSessions = () => sessionService.getSessions();
+export const getSessionById = (id: string) => sessionService.getSessionById(id);
+export const createSession = (session: Omit<Session, "id">) => sessionService.createSession(session);
+export const updateSession = (id: string, session: Partial<Session>) => sessionService.updateSession(id, session);
+export const deleteSession = (id: string) => sessionService.deleteSession(id);

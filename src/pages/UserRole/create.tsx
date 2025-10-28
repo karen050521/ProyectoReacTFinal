@@ -1,17 +1,15 @@
 "use client"
-import React, { useEffect, useState } from "react"; // Asegúrate de importar useState
+import React from "react";
 import { UserRole } from '../../models/UserRole';
-import UserFormValidator from '../../components/Users/UserFormValidator'; 
+import UserRoleFormValidator from '../../components/userRole/userRoleForm'; 
 
 import Swal from 'sweetalert2';
-import  { createUserRole }  from "../../services/userRoleService";
+import { createUserRole } from "../../services/userRoleService";
 import Breadcrumb from '../../components/Breadcrumb';
 import { useNavigate } from "react-router-dom";
 
 const App = () => {
     const navigate = useNavigate();
-
-    // Estado para almacenar el usuario a editar
 
     // Lógica de creación
     const handleCreateUserRole = async (userRole: UserRole) => {
@@ -25,8 +23,8 @@ const App = () => {
                     icon: "success",
                     timer: 3000
                 })
-                console.log("Usuario creado con éxito:", createdUserRole);
-                navigate("/users");
+                console.log("UserRole creado con éxito:", createdUserRole);
+                navigate("/user-roles");
             } else {
                 Swal.fire({
                     title: "Error",
@@ -49,7 +47,7 @@ const App = () => {
             {/* Formulario para crear un nuevo rol de usuario */}
             <h2>Create User Role</h2>
                 <Breadcrumb pageName="Crear Rol de Usuario" />
-                <UserFormValidator
+                <UserRoleFormValidator
                     handleCreate={handleCreateUserRole}
                     mode={1} // 1 significa creación
                 />

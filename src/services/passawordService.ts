@@ -2,7 +2,7 @@ import axios from "axios";
 
 import type { Password } from "../models/Password";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/passwords" || "";
+const API_URL = (import.meta as any).env.CLASES_NUBES + "/passwords" || "/passwords";
 
 class PasswordService {
     async getPasswords(): Promise<Password[]> {
@@ -58,3 +58,10 @@ class PasswordService {
 
 // Exportamos una instancia de la clase para reutilizarla
 export const passwordService = new PasswordService();
+
+// Named exports para compatibilidad con imports existentes
+export const getPasswords = () => passwordService.getPasswords();
+export const getPasswordById = (id: number) => passwordService.getPasswordById(id);
+export const createPassword = (password: Omit<Password, "id">) => passwordService.createPassword(password);
+export const updatePassword = (id: number, password: Partial<Password>) => passwordService.updatePassword(id, password);
+export const deletePassword = (id: number) => passwordService.deletePassword(id);

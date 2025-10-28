@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Role } from "../models/Role";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/roles" || "";
+const API_URL = (import.meta as any).env.CLASES_NUBES + "/roles" || "/roles";
 
 class RoleService {
     async getRoles(): Promise<Role[]> {
@@ -57,3 +57,10 @@ class RoleService {
 
 // Exportamos una instancia de la clase para reutilizarla
 export const roleService = new RoleService();
+
+// Named exports para compatibilidad con imports existentes
+export const getRoles = () => roleService.getRoles();
+export const getRoleById = (id: number) => roleService.getRoleById(id);
+export const createRole = (role: Omit<Role, "id">) => roleService.createRole(role);
+export const updateRole = (id: number, role: Partial<Role>) => roleService.updateRole(id, role);
+export const deleteRole = (id: number) => roleService.deleteRole(id);
