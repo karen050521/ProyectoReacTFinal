@@ -1,7 +1,7 @@
 import api from "../interceptors/axiosInterceptor";
 import type { Password } from "../models/Password";
 
-const API_URL = "/api/passwords";
+const API_URL = "/passwords"; // ✅ Quitamos /api porque ya está en baseURL
 
 class PasswordService {
     async getPasswords(): Promise<Password[]> {

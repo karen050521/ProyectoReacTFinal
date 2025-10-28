@@ -28,11 +28,16 @@ const AddressFormValidator: React.FC<AddressFormProps> = ({
 
     return (
         <Formik
-            initialValues={address ? address : {
+            initialValues={address ? {
+                street: address.street || "",
+                number: address.number || "",
+                latitude: address.latitude !== null ? address.latitude : "",
+                longitude: address.longitude !== null ? address.longitude : "",
+            } : {
                 street: "",
                 number: "",
-                latitude: null,
-                longitude: null,
+                latitude: "",
+                longitude: "",
             }}
             validationSchema={Yup.object({
                 street: Yup.string()
@@ -44,16 +49,28 @@ const AddressFormValidator: React.FC<AddressFormProps> = ({
                     .max(10, "El número no puede exceder 10 caracteres")
                     .required("El número es obligatorio"),
                 latitude: Yup.number()
+                    .transform((value, originalValue) => {
+                        return originalValue === "" ? null : value;
+                    })
                     .min(-90, "La latitud debe estar entre -90 y 90")
                     .max(90, "La latitud debe estar entre -90 y 90")
                     .nullable(),
                 longitude: Yup.number()
+                    .transform((value, originalValue) => {
+                        return originalValue === "" ? null : value;
+                    })
                     .min(-180, "La longitud debe estar entre -180 y 180")
                     .max(180, "La longitud debe estar entre -180 y 180")
                     .nullable(),
             })}
             onSubmit={(values) => {
-                handleSubmit(values);
+                // Convert empty strings to null for latitude and longitude
+                const formattedValues = {
+                    ...values,
+                    latitude: values.latitude === "" ? null : Number(values.latitude),
+                    longitude: values.longitude === "" ? null : Number(values.longitude),
+                };
+                handleSubmit(formattedValues);
             }}
         >
             {({ handleSubmit }) => (

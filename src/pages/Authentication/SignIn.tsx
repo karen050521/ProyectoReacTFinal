@@ -28,8 +28,15 @@ const SignIn: React.FC = () => {
       // Llamar al servicio con las credenciales del formulario
       const response = await SecurityService.login(values);
       console.log('Usuario autenticado:', response);
+      
+      // 🔥 Si el login es exitoso, redirigir al dashboard
+      if (response) {
+        console.log("✅ Login tradicional exitoso, redirigiendo...");
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Error al iniciar sesión', error);
+      setError('Error al iniciar sesión. Verifica tus credenciales.');
     }
   };
 

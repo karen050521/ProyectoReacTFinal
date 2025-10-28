@@ -61,6 +61,11 @@ class SecurityService extends EventTarget {
             // Actualizar Redux store
             store.dispatch(setUser(data.user || data));
             
+            // 🔥 NOTIFICAR AL AuthContext QUE HAY NUEVA SESIÓN
+            window.dispatchEvent(new CustomEvent('authStateChanged', {
+                detail: { user: data.user || data, token: data.token || data.access_token }
+            }));
+            
             return data;
         } catch (error) {
             console.error('Error during login:', error);

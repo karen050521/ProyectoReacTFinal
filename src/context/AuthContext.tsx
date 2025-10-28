@@ -41,10 +41,33 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const user = await authProviderInstance.getCurrentUser();
-        if (user) {
-          setCurrentUser(user);
-          dispatch(setUser(user)); // Sync with Redux
+        // 🔥 VERIFICAR AMBOS TIPOS DE AUTENTICACIÓN
+        
+        // 1. Verificar si hay sesión del backend (login tradicional)
+        const sessionToken = localStorage.getItem("session");
+        const userData = localStorage.getItem("user");
+        
+        if (sessionToken && userData) {
+          console.log("✅ Sesión del backend encontrada");
+          const user = JSON.parse(userData);
+          // Adaptar usuario del backend al formato AuthUser
+          const authUser: AuthUser = {
+            ...user,
+            token: sessionToken,
+            provider: 'local' as const
+          };
+          setCurrentUser(authUser);
+          dispatch(setUser(user));
+          setLoading(false);
+          return; // Ya está autenticado via backend
+        }
+        
+        // 2. Si no hay sesión backend, verificar Firebase
+        const firebaseUser = await authProviderInstance.getCurrentUser();
+        if (firebaseUser) {
+          console.log("✅ Usuario de Firebase encontrado");
+          setCurrentUser(firebaseUser);
+          dispatch(setUser(firebaseUser));
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
@@ -53,12 +76,32 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
       }
     };
 
+    // 🔥 ESCUCHAR CAMBIOS DE AUTENTICACIÓN DESDE SecurityService
+    const handleAuthStateChange = (event: any) => {
+      console.log("🔄 AuthContext: Detectado cambio de autenticación", event.detail);
+      const { user, token } = event.detail;
+      const authUser: AuthUser = {
+        ...user,
+        token: token,
+        provider: 'local' as const
+      };
+      setCurrentUser(authUser);
+      dispatch(setUser(user));
+    };
+
+    window.addEventListener('authStateChanged', handleAuthStateChange);
+
     // Mostrar instrucciones de configuración en desarrollo
     if (firebaseConfig.apiKey === "TU_API_KEY") {
       console.warn(getFirebaseSetupInstructions());
     }
 
     initializeAuth();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthStateChange);
+    };
   }, [dispatch]);
 
   const signIn = async () => {
@@ -103,9 +146,30 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
 
   const refreshAuth = async () => {
     try {
-      const user = await authProviderInstance.getCurrentUser();
-      setCurrentUser(user);
-      dispatch(setUser(user));
+      // 🔥 VERIFICAR AMBOS TIPOS DE AUTENTICACIÓN
+      
+      // 1. Verificar sesión del backend primero
+      const sessionToken = localStorage.getItem("session");
+      const userData = localStorage.getItem("user");
+      
+      if (sessionToken && userData) {
+        console.log("🔄 Refrescando sesión del backend");
+        const user = JSON.parse(userData);
+        // Adaptar usuario del backend al formato AuthUser
+        const authUser: AuthUser = {
+          ...user,
+          token: sessionToken,
+          provider: 'local' as const
+        };
+        setCurrentUser(authUser);
+        dispatch(setUser(user));
+        return;
+      }
+      
+      // 2. Si no hay sesión backend, verificar Firebase
+      const firebaseUser = await authProviderInstance.getCurrentUser();
+      setCurrentUser(firebaseUser);
+      dispatch(setUser(firebaseUser));
     } catch (error) {
       console.error("Error refreshing auth:", error);
     }
