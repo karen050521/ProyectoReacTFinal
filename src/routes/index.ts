@@ -15,6 +15,10 @@ const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
 const ListUsers = lazy(() => import('../pages/Users/list'));
 const CreatetUser = lazy(() => import('../pages/Users/create'));
 const UpdatetUser = lazy(() => import('../pages/Users/update'));
+// Address pages (Color Amarillo - CRUD)
+const ListAddresses = lazy(() => import('../pages/Address/list'));
+const CreateAddress = lazy(() => import('../pages/Address/create'));
+const UpdateAddress = lazy(() => import('../pages/Address/update'));
 
 // ADDRESS (Color Amarillo - CRUD completo)
 // TODO: Descommentar cuando se creen las páginas
@@ -100,6 +104,22 @@ const coreRoutes = [
     path: '/users/update/:id',
     title: 'Update User',
     component: UpdatetUser,
+  },
+  // Address routes
+  {
+    path: '/addresses',
+    title: 'Addresses',
+    component: ListAddresses,
+  },
+  {
+    path: '/addresses/create',
+    title: 'Create Address',
+    component: CreateAddress,
+  },
+  {
+    path: '/addresses/update/:id',
+    title: 'Update Address',
+    component: UpdateAddress,
   },
   
   // ===== COLOR AMARILLO ROUTES =====

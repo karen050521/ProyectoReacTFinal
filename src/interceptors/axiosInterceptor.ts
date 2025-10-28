@@ -11,17 +11,29 @@ const api = axios.create({
 // Interceptor de solicitud
 api.interceptors.request.use(
     (config) => {
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
         // Verificar si la URL está en la lista de excluidas
-        if (EXCLUDED_ROUTES.some((route) => config.url?.includes(route)) || !user) {
+        if (EXCLUDED_ROUTES.some((route) => config.url?.includes(route))) {
             return config;
         }
-        // Agregar token si la ruta no está excluida
-        const token = user["token"]
-        if (token) {
-            console.log("agregando el token "+token)
-            config.headers.Authorization = `Bearer ${token}`;
+        
+        // Intentar obtener token de sesión
+        const sessionToken = localStorage.getItem("session");
+        if (sessionToken) {
+            console.log("🔑 Agregando token de sesión:", sessionToken.substring(0, 20) + "...");
+            config.headers.Authorization = `Bearer ${sessionToken}`;
+            return config;
         }
+        
+        // Fallback: intentar obtener token del usuario (legacy)
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const userToken = user["token"];
+        if (userToken) {
+            console.log("🔑 Agregando token del usuario:", userToken.substring(0, 20) + "...");
+            config.headers.Authorization = `Bearer ${userToken}`;
+            return config;
+        }
+        
+        console.warn("⚠️ No se encontró token de autenticación");
         return config;
     },
     (error) => {

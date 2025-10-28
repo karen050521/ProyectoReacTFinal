@@ -5,6 +5,7 @@ import { IAuthContext, IAuthProvider } from "../interfaces/auth.interface";
 import { AuthUser } from "../models/auth";
 import { FirebaseAuthProvider } from "../services/auth/FirebaseAuthProvider";
 import { firebaseConfig, getFirebaseSetupInstructions } from "../config/firebase.config";
+import securityService from "../services/securityService";
 
 // Dependency Inversion: AuthContext depende de abstracción IAuthProvider
 const AuthContext = createContext<IAuthContext | null>(null);
@@ -64,6 +65,17 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
     try {
       setLoading(true);
       const result = await authProviderInstance.signIn();
+      
+      // 🔥 INTEGRACIÓN CON BACKEND: Después del login de Firebase
+      try {
+        console.log("🔗 Integrando Firebase con backend...");
+        await securityService.loginWithFirebase(result.user);
+        console.log("✅ Usuario autenticado en backend también");
+      } catch (backendError) {
+        console.warn("⚠️ Error al integrar con backend, pero Firebase OK:", backendError);
+        // Continuar con Firebase aunque backend falle
+      }
+      
       setCurrentUser(result.user);
       dispatch(setUser(result.user));
     } catch (error) {
@@ -77,6 +89,10 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
   const signOut = async () => {
     try {
       await authProviderInstance.signOut();
+      
+      // 🔥 LIMPIAR SESIÓN DEL BACKEND TAMBIÉN
+      securityService.logout();
+      
       setCurrentUser(null);
       dispatch(setUser(null));
     } catch (error) {
