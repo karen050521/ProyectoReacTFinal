@@ -7,7 +7,7 @@ const Profile: React.FC = () => {
     id: 1,
     name: "Juan Pérez",
     email: "juan.perez@example.com",
-    age: 30
+    age: 30,
   };
 
   return (
