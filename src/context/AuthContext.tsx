@@ -43,29 +43,58 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
       try {
         // 🔥 VERIFICAR AMBOS TIPOS DE AUTENTICACIÓN
         
-        // 1. Verificar si hay sesión del backend (login tradicional)
+        // 1. Verificar si hay sesión del backend (login tradicional o Firebase integrado)
         const sessionToken = localStorage.getItem("session");
         const userData = localStorage.getItem("user");
         
         if (sessionToken && userData) {
-          console.log("✅ Sesión del backend encontrada");
+          console.log("✅ Sesión del backend encontrada con token válido");
           const user = JSON.parse(userData);
           // Adaptar usuario del backend al formato AuthUser
           const authUser: AuthUser = {
             ...user,
             token: sessionToken,
-            provider: 'local' as const
+            provider: user.provider || 'local' as const
           };
           setCurrentUser(authUser);
           dispatch(setUser(user));
           setLoading(false);
-          return; // Ya está autenticado via backend
+          return; // Ya está autenticado con sesión real
         }
         
-        // 2. Si no hay sesión backend, verificar Firebase
+        // 2. Verificar si hay usuario de Firebase sin integrar con backend
+        if (userData && !sessionToken) {
+          const user = JSON.parse(userData);
+          if (user.provider === 'google' || user.token?.includes('firebase_token')) {
+            console.log("⚠️ Usuario de Firebase sin sesión backend");
+            console.log("🔄 Intentando integrar con backend...");
+            
+            try {
+              // Intentar integrar con backend automáticamente
+              await securityService.loginWithFirebase(user);
+              console.log("✅ Integración automática completada");
+              // El evento authStateChanged manejará la actualización
+              setLoading(false);
+              return;
+            } catch (error) {
+              console.warn("⚠️ Integración automática falló, modo Firebase temporal:", error);
+              // Continuar con Firebase temporal
+              const authUser: AuthUser = {
+                ...user,
+                provider: 'google' as const
+              };
+              setCurrentUser(authUser);
+              dispatch(setUser(user));
+              setLoading(false);
+              return;
+            }
+          }
+        }
+        
+        // 3. Si no hay nada, verificar Firebase activo
         const firebaseUser = await authProviderInstance.getCurrentUser();
         if (firebaseUser) {
-          console.log("✅ Usuario de Firebase encontrado");
+          console.log("✅ Usuario de Firebase activo encontrado");
           setCurrentUser(firebaseUser);
           dispatch(setUser(firebaseUser));
         }
@@ -166,7 +195,22 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
         return;
       }
       
-      // 2. Si no hay sesión backend, verificar Firebase
+      // 2. Verificar si hay usuario de Firebase en localStorage (sin session token)
+      if (userData && !sessionToken) {
+        const user = JSON.parse(userData);
+        if (user.provider === 'google' || user.token?.includes('firebase_token')) {
+          console.log("🔄 Refrescando usuario de Firebase desde localStorage");
+          const authUser: AuthUser = {
+            ...user,
+            provider: 'google' as const
+          };
+          setCurrentUser(authUser);
+          dispatch(setUser(user));
+          return;
+        }
+      }
+      
+      // 3. Si no hay ninguno, verificar Firebase activo
       const firebaseUser = await authProviderInstance.getCurrentUser();
       setCurrentUser(firebaseUser);
       dispatch(setUser(firebaseUser));

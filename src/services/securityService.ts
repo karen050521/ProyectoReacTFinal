@@ -1,6 +1,7 @@
 import { User } from "../models/user";
 import { store } from "../store/store";
 import { setUser } from "../store/userSlice";
+import api from "../interceptors/axiosInterceptor";
 
 // Interfaz específica para login
 interface LoginCredentials {
@@ -73,45 +74,152 @@ class SecurityService extends EventTarget {
         }
     }
 
-    // Nuevo método para login con Firebase OAuth
+    // Método para login con Firebase OAuth usando endpoints existentes
     async loginWithFirebase(firebaseUser: any) {
-        console.log("🔥 Enviando usuario de Firebase al backend...");
+        console.log("🔥 Integrando usuario de Firebase con backend...");
         try {
-            const firebaseToken = await firebaseUser.getIdToken();
+            // 1. Primero intentar crear usuario directamente (si existe, obtendremos error)
+            let backendUser = null;
             
-            const response = await fetch(`${this.API_URL}/auth/firebase`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${firebaseToken}`
-                },
-                body: JSON.stringify({
-                    firebase_uid: firebaseUser.uid,
-                    email: firebaseUser.email,
-                    name: firebaseUser.displayName,
-                    photo_url: firebaseUser.photoURL
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Firebase authentication with backend failed');
+            console.log("🆕 Intentando crear/obtener usuario en backend...");
+            const userData = {
+                name: firebaseUser.displayName || firebaseUser.name || 'Usuario Firebase',
+                email: firebaseUser.email || '',
+                provider: 'google'
+            };
+            
+            try {
+                // Intentar crear usuario
+                const createUserResponse = await fetch(`${this.API_URL}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+                
+                if (createUserResponse.ok) {
+                    backendUser = await createUserResponse.json();
+                    console.log("✅ Usuario creado en backend:", backendUser.id);
+                } else if (createUserResponse.status === 400) {
+                    // Usuario ya existe, buscar por email
+                    console.log("ℹ️ Usuario ya existe, buscando por email...");
+                    
+                    const usersResponse = await fetch(`${this.API_URL}/users`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (usersResponse.ok) {
+                        const users = await usersResponse.json();
+                        console.log("📋 Usuarios obtenidos:", users.length);
+                        
+                        backendUser = users.find((user: any) => 
+                            user.email === firebaseUser.email
+                        );
+                        
+                        if (backendUser) {
+                            console.log("✅ Usuario existente encontrado:", backendUser.id);
+                        } else {
+                            throw new Error("Usuario existe pero no se pudo encontrar por email");
+                        }
+                    } else {
+                        throw new Error("No se pudo obtener lista de usuarios");
+                    }
+                } else {
+                    const errorData = await createUserResponse.json();
+                    throw new Error(`Error del servidor: ${errorData.error || createUserResponse.statusText}`);
+                }
+                
+            } catch (fetchError) {
+                console.error("Error en creación/búsqueda de usuario:", fetchError);
+                throw fetchError;
             }
-
-            const data = await response.json();
             
-            // Guardar usuario y token del backend
-            localStorage.setItem("user", JSON.stringify(data.user || data));
-            
-            if (data.token) {
-                localStorage.setItem(this.keySession, data.token);
-                console.log("✅ Token del backend guardado después de Firebase OAuth");
+            if (!backendUser) {
+                throw new Error("No se pudo crear ni encontrar el usuario en el backend");
             }
             
-            store.dispatch(setUser(data.user || data));
+            // 2. Crear sesión para el usuario
+            console.log("Creando sesión en backend...");
+            console.log("URL de sesión:", `${this.API_URL}/sessions/user/${backendUser.id}`);
+            console.log("User ID:", backendUser.id);
             
-            return data;
+            // Primero probar conectividad básica del backend
+            try {
+                console.log("Probando conectividad con backend...");
+                const testResponse = await fetch(`${this.API_URL}/users`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                console.log("Conectividad backend OK, status:", testResponse.status);
+            } catch (connectError) {
+                console.error("Error de conectividad backend:", connectError);
+                throw new Error("Backend no está disponible");
+            }
+            
+            // Crear fecha de expiración (24 horas desde ahora) en formato string
+            const expirationDate = new Date();
+            expirationDate.setHours(expirationDate.getHours() + 24);
+            const expirationString = expirationDate.toISOString().slice(0, 19).replace('T', ' ');
+            
+            const sessionData = {
+                state: 'active',
+                expiration: expirationString  // Formato: "YYYY-MM-DD HH:MM:SS"
+                // token se generará automáticamente en el backend
+            };
+            
+            console.log("Enviando datos de sesión:", sessionData);
+            
+            try {
+                // Usar el interceptor axios del proyecto para mejor manejo de CORS
+                const sessionResponse = await api.post(
+                    `/sessions/user/${backendUser.id}`,
+                    sessionData
+                );
+                
+                console.log("Respuesta de sesión status:", sessionResponse.status);
+                console.log("Respuesta de sesión ok:", sessionResponse.status === 200 || sessionResponse.status === 201);
+                
+                const sessionData_response = sessionResponse.data;
+                console.log("Sesión creada exitosamente. Token:", sessionData_response.token?.substring(0, 20) + "...");
+                
+                if (!sessionData_response.token) {
+                    throw new Error("No se recibió token en la respuesta de sesión");
+                }
+                
+                // 3. Guardar datos en localStorage
+                const userToStore = {
+                    ...backendUser,
+                    provider: 'google',
+                    firebase_uid: firebaseUser.uid
+                };
+                
+                localStorage.setItem("user", JSON.stringify(userToStore));
+                localStorage.setItem(this.keySession, sessionData_response.token);
+                
+                // 4. Actualizar Redux store
+                store.dispatch(setUser(userToStore));
+                
+                // 5. Notificar al AuthContext
+                window.dispatchEvent(new CustomEvent('authStateChanged', {
+                    detail: { user: userToStore, token: sessionData_response.token }
+                }));
+                
+                console.log("Integración Firebase-Backend completada exitosamente");
+                
+                return {
+                    user: userToStore,
+                    session: sessionData_response,
+                    message: "Firebase login integrado con backend"
+                };
+                
+            } catch (sessionError) {
+                console.error('Error específico creando sesión:', sessionError);
+                const errorMessage = sessionError instanceof Error ? sessionError.message : String(sessionError);
+                throw new Error(`Falló la creación de sesión: ${errorMessage}`);
+            }
+            
         } catch (error) {
-            console.error('Error during Firebase backend integration:', error);
+            console.error('Error durante integración Firebase-Backend:', error);
             throw error;
         }
     }
