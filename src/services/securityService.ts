@@ -76,17 +76,34 @@ class SecurityService extends EventTarget {
 
     // Método para login con Firebase OAuth usando endpoints existentes
     async loginWithFirebase(firebaseUser: any) {
-        console.log("🔥 Integrando usuario de Firebase con backend...");
+        console.log("🔗 Integrando usuario de Firebase con backend...");
+        
+        // 🔍 DEBUG: Verificar datos del usuario Firebase
+        console.log("🔍 DEBUG: Datos recibidos de Firebase:", {
+            uid: firebaseUser.id,
+            email: firebaseUser.email,
+            name: firebaseUser.name,
+            displayName: firebaseUser.displayName
+        });
+
+        // 🚨 VALIDACIÓN: Verificar que tenemos email
+        if (!firebaseUser.email || firebaseUser.email.trim() === '') {
+            console.error("❌ CRÍTICO: Usuario Firebase sin email válido");
+            throw new Error("Usuario Firebase no tiene email válido. Contacta soporte.");
+        }
+
         try {
             // 1. Primero intentar crear usuario directamente (si existe, obtendremos error)
             let backendUser = null;
             
-            console.log("🆕 Intentando crear/obtener usuario en backend...");
+            console.log("🔗 Intentando crear/obtener usuario en backend...");
             const userData = {
                 name: firebaseUser.displayName || firebaseUser.name || 'Usuario Firebase',
-                email: firebaseUser.email || '',
+                email: firebaseUser.email,
                 provider: 'google'
             };
+            
+            console.log("🔍 Datos para enviar al backend:", userData);
             
             try {
                 // Intentar crear usuario
@@ -98,10 +115,10 @@ class SecurityService extends EventTarget {
                 
                 if (createUserResponse.ok) {
                     backendUser = await createUserResponse.json();
-                    console.log("✅ Usuario creado en backend:", backendUser.id);
+                    console.log(" Usuario creado en backend:", backendUser.id);
                 } else if (createUserResponse.status === 400) {
                     // Usuario ya existe, buscar por email
-                    console.log("ℹ️ Usuario ya existe, buscando por email...");
+                    console.log(" Usuario ya existe, buscando por email...");
                     
                     const usersResponse = await fetch(`${this.API_URL}/users`, {
                         method: 'GET',
