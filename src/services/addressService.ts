@@ -26,10 +26,32 @@ class AddressService {
 
     async createAddress(userId: number, address: Omit<Address, "id" | "user_id">): Promise<Address | null> {
         try {
+            console.log("Creando dirección para usuario:", userId);
+            console.log("Datos de dirección:", address);
+            
             const response = await api.post<Address>(`${API_URL}/user/${userId}`, address);
+            console.log("Respuesta exitosa:", response.data);
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error al crear dirección:", error);
+            
+            // Mostrar información específica del error
+            if (error.response) {
+                console.error("Status:", error.response.status);
+                console.error("Data:", error.response.data);
+                
+                // Si es error 400, mostrar mensaje específico
+                if (error.response.status === 400) {
+                    const errorMessage = error.response.data?.error || error.response.data?.message || "Datos inválidos";
+                    console.error("Error 400 - Bad Request:", errorMessage);
+                    
+                    // Si el error indica que ya existe una dirección
+                    if (errorMessage.includes("already exists") || errorMessage.includes("ya existe")) {
+                        throw new Error("El usuario ya tiene una dirección registrada. Cada usuario solo puede tener una dirección.");
+                    }
+                }
+            }
+            
             return null;
         }
     }
