@@ -12,9 +12,7 @@ const ListRoles: React.FC = () => {
    const navigate = useNavigate();
 
     useEffect(() => {
-
         fetchData();
-        console.log("Roles fetched:", roles);
     }, []);
 
     const fetchData = async () => {

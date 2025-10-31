@@ -2,7 +2,9 @@ import axios from "axios";
 import type { User } from "../models/user";
 
 
-const API_URL = import.meta.env.VITE_API_URL + "/users" || "/users";
+const RAW_API_BASE_USER: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_USER = RAW_API_BASE_USER ? RAW_API_BASE_USER.replace(/\/$/, '') : '';
+const API_URL = API_BASE_USER ? `${API_BASE_USER}/users` : '/users';
 
 class UserService {
     async getUsers(): Promise<User[]> {

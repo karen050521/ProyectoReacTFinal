@@ -27,7 +27,9 @@ const ListUsers: React.FC = () => {
     };
 
     const handleAction = (action: string, item: User) => {
-        if (action === "edit") {
+        if (action === "view") {
+            navigate(`/users/view/${item.id}`);
+        } else if (action === "edit") {
             console.log("Edit user:", item);
             navigate(`/users/update/${item.id}`);
         } else if (action === "delete") {
@@ -55,6 +57,18 @@ const ListUsers: React.FC = () => {
                     fetchData();
                 }
             });
+        } else if (action === "profile") {
+            navigate(`/profiles/user/${item.id}`);
+        } else if (action === "address") {
+            navigate(`/addresses/user/${item.id}`);
+        } else if (action === "signature") {
+            navigate(`/signatures/user/${item.id}`);
+        } else if (action === "devices") {
+            navigate(`/devices/user/${item.id}`);
+        } else if (action === "passwords") {
+            navigate(`/passwords/user/${item.id}`);
+        } else if (action === "sessions") {
+            navigate(`/sessions/user/${item.id}`);
         }
     };
 
@@ -65,8 +79,15 @@ const ListUsers: React.FC = () => {
                 data={users}
                 columns={["id", "name", "email"]}
                 actions={[
+                    { name: "view", label: "👁️" },
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },
+                    { name: "profile", label: "👤" },
+                    { name: "address", label: "📍" },
+                    { name: "signature", label: "✍️" },
+                    { name: "devices", label: "📱" },
+                    { name: "passwords", label: "🔑" },
+                    { name: "sessions", label: "🔒" },
                 ]}
                 onAction={handleAction}
             />

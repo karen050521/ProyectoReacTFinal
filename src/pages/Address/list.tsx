@@ -12,14 +12,13 @@ const ListAddresses: React.FC = () => {
    const navigate = useNavigate();
 
     useEffect(() => {
-
         fetchData();
-        console.log("Addresses fetched:", Addresses);
     }, []);
 
     const fetchData = async () => {
         try {
             const addresses = await addressService.getAddresses();
+            console.debug('Address.list fetchData -> received', addresses);
             setAddresses(addresses);
         } catch (error) {
             console.error("Error fetching addresses:", error);

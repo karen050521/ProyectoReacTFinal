@@ -1,12 +1,16 @@
 import axios from "axios";
 import type { Permission } from "../models/Permission";
 
-const API_URL = (import.meta as any).env.CLASES_NUBES + "/permissions" || "/permissions";
+const RAW_API_BASE_PERM: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_PERM = RAW_API_BASE_PERM ? RAW_API_BASE_PERM.replace(/\/$/, '') : '';
+const API_URL = API_BASE_PERM ? `${API_BASE_PERM}/permissions` : '/permissions';
 
 class PermissionService {
     async getPermissions(): Promise<Permission[]> {
         try {
+            console.debug('PermissionService.getPermissions -> API_URL=', API_URL);
             const response = await axios.get<Permission[]>(API_URL);
+            console.debug('PermissionService.getPermissions -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
             console.error("Error al obtener permisos:", error);

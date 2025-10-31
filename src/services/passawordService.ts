@@ -2,12 +2,17 @@ import axios from "axios";
 
 import type { Password } from "../models/Password";
 
-const API_URL = (import.meta as any).env.CLASES_NUBES + "/passwords" || "/passwords";
+// Build API base URL safely. Support both VITE_API_URL and legacy CLASES_NUBES
+const RAW_API_BASE_PW: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_PW = RAW_API_BASE_PW ? RAW_API_BASE_PW.replace(/\/$/, '') : '';
+const API_URL = API_BASE_PW ? `${API_BASE_PW}/passwords` : '/passwords';
 
 class PasswordService {
     async getPasswords(): Promise<Password[]> {
         try {
+            console.debug('PasswordService.getPasswords -> API_URL=', API_URL);
             const response = await axios.get<Password[]>(API_URL);
+            console.debug('PasswordService.getPasswords -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
             console.error("Error al obtener las contraseñas:", error);

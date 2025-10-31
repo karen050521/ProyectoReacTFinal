@@ -1,12 +1,18 @@
 import axios from "axios";
 import type { Address } from "../models/Address";
 
-const API_URL = (import.meta as any).VITE_API_URL + "/addresses" || "";
+// Build API base URL from environment safely. Prefer import.meta.env.VITE_API_URL
+const RAW_API_BASE: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || undefined;
+const API_BASE = RAW_API_BASE ? RAW_API_BASE.replace(/\/$/, '') : '';
+const API_URL = API_BASE ? `${API_BASE}/addresses` : '/addresses';
 
 class AddressService {
     async getAddresses(): Promise<Address[]> {
         try {
-            const response = await axios.get<Address[]>(API_URL);
+                // debug: log resolved API_URL and response info
+                console.debug('AddressService.getAddresses -> API_URL=', API_URL);
+                const response = await axios.get<Address[]>(API_URL);
+                console.debug('AddressService.getAddresses -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
             console.error("Error al obtener direcciones :", error);

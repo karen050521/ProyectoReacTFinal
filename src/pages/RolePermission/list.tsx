@@ -12,14 +12,13 @@ const ListRolePermissions: React.FC = () => {
    const navigate = useNavigate();
 
     useEffect(() => {
-
         fetchData();
-        console.log("Role Permissions fetched:", rolePermissions);
     }, []);
 
     const fetchData = async () => {
         try {
             const rolePermissions = await rolePermissionService.getRolePermissions();
+            console.debug('RolePermission.list fetchData -> received', rolePermissions);
             setRolePermissions(rolePermissions);
         } catch (error) {
             console.error("Error fetching role permissions:", error);
@@ -63,7 +62,7 @@ const ListRolePermissions: React.FC = () => {
             <h2>Role Permission List</h2>
             <GenericTable
                 data={rolePermissions}
-                columns={["id", "roleId", "permissionId"]}
+                columns={["id", "role_id", "permission_id", "created_at", "updated_at"]}
                 actions={[
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },

@@ -12,14 +12,13 @@ const ListPasswords: React.FC = () => {
    const navigate = useNavigate();
 
     useEffect(() => {
-
         fetchData();
-        console.log("Passwords fetched:", passwords);
     }, []);
 
     const fetchData = async () => {
         try {
             const passwords = await passwordService.getPasswords();
+            console.debug('Password.list fetchData -> received', passwords);
             setPasswords(passwords);
         } catch (error) {
             console.error("Error fetching passwords:", error);
@@ -63,7 +62,7 @@ const ListPasswords: React.FC = () => {
             <h2>Password List</h2>
             <GenericTable
                 data={passwords}
-                columns={["id", "name", "email"]}
+                columns={["id", "user_id", "content", "startAt", "endAt", "created_at", "updated_at"]}
                 actions={[
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },

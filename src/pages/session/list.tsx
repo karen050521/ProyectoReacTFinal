@@ -12,14 +12,13 @@ const ListSessions: React.FC = () => {
    const navigate = useNavigate();
 
     useEffect(() => {
-
         fetchData();
-        console.log("Sessions fetched:", sessions);
     }, []);
 
     const fetchData = async () => {
         try {
             const sessions = await sessionService.getSessions();
+            console.debug('Session.list fetchData -> received', sessions);
             setSessions(sessions);
         } catch (error) {
             console.error("Error fetching sessions:", error);
@@ -63,7 +62,7 @@ const ListSessions: React.FC = () => {
             <h2>Session List</h2>
             <GenericTable
                 data={sessions}
-                columns={["id", "name", "startAt", "endAt"]}
+                columns={["id", "user_id", "token", "expiration", "FACode", "state", "created_at", "updated_at"]}
                 actions={[
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },

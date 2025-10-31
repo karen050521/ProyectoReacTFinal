@@ -1,12 +1,16 @@
 import axios from "axios";
 import type { Profile } from "../models/Profile";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/profiles" || "/profiles";
+const RAW_API_BASE_PROF: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_PROF = RAW_API_BASE_PROF ? RAW_API_BASE_PROF.replace(/\/$/, '') : '';
+const API_URL = API_BASE_PROF ? `${API_BASE_PROF}/profiles` : '/profiles';
 
 class ProfileService {
     async getProfiles(): Promise<Profile[]> {
         try {
+            console.debug('ProfileService.getProfiles -> API_URL=', API_URL);
             const response = await axios.get<Profile[]>(API_URL);
+            console.debug('ProfileService.getProfiles -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
             console.error("Error al obtener perfiles:", error);

@@ -13,14 +13,13 @@ const ListProfiles: React.FC = () => {
    const navigate = useNavigate();
 
     useEffect(() => {
-
         fetchData();
-        console.log("Profiles fetched:", profiles);
     }, []);
 
     const fetchData = async () => {
         try {
             const profiles = await profileService.getProfiles();
+            console.debug('Profile.list fetchData -> received', profiles);
             setProfiles(profiles);
         } catch (error) {
             console.error("Error fetching profiles:", error);
@@ -64,7 +63,7 @@ const ListProfiles: React.FC = () => {
             <h2>Profile List</h2>
             <GenericTable
                 data={profiles}
-                columns={["id", "name", "email"]}
+                columns={["id", "user_id", "phone", "photo", "created_at", "updated_at"]}
                 actions={[
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },

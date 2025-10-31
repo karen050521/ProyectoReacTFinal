@@ -1,12 +1,16 @@
 import axios from "axios";
 import type { RolePermission } from "../models/RolePermission";
 
-const API_URL = (import.meta as any).env.VITE_API_URL + "/role-permissions" || "";
+const RAW_API_BASE_RP: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_RP = RAW_API_BASE_RP ? RAW_API_BASE_RP.replace(/\/$/, '') : '';
+const API_URL = API_BASE_RP ? `${API_BASE_RP}/role-permissions` : '/role-permissions';
 
 class RolePermissionService {
     async getRolePermissions(): Promise<RolePermission[]> {
         try {
+            console.debug('RolePermissionService.getRolePermissions -> API_URL=', API_URL);
             const response = await axios.get<RolePermission[]>(API_URL);
+            console.debug('RolePermissionService.getRolePermissions -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
             console.error("Error al obtener permisos de rol:", error);

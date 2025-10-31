@@ -1,12 +1,16 @@
 import axios from "axios";
 import type { Role } from "../models/Role";
 
-const API_URL = (import.meta as any).env.CLASES_NUBES + "/roles" || "/roles";
+const RAW_API_BASE_ROLE: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_ROLE = RAW_API_BASE_ROLE ? RAW_API_BASE_ROLE.replace(/\/$/, '') : '';
+const API_URL = API_BASE_ROLE ? `${API_BASE_ROLE}/roles` : '/roles';
 
 class RoleService {
     async getRoles(): Promise<Role[]> {
         try {
+            console.debug('RoleService.getRoles -> API_URL=', API_URL);
             const response = await axios.get<Role[]>(API_URL);
+            console.debug('RoleService.getRoles -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
             console.error("Error al obtener roles:", error);

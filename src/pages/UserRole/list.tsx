@@ -12,14 +12,13 @@ const ListUserRoles: React.FC = () => {
    const navigate = useNavigate();
 
     useEffect(() => {
-
         fetchData();
-        console.log("UserRoles fetched:", userRoles);
     }, []);
 
     const fetchData = async () => {
         try {
             const userRoles = await userRoleService.getUserRoles();
+            console.debug('UserRole.list fetchData -> received', userRoles);
             setUserRoles(userRoles);
         } catch (error) {
             console.error("Error fetching user roles:", error);
@@ -60,10 +59,10 @@ const ListUserRoles: React.FC = () => {
 
     return (
         <div>
-            <h2>User List</h2>
+            <h2>User Role List</h2>
             <GenericTable
                 data={userRoles}
-                columns={["id", "name", "email"]}
+                columns={["id", "user_id", "role_id", "startAt", "endAt", "created_at", "updated_at"]}
                 actions={[
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },

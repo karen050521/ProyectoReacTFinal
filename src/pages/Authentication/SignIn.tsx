@@ -4,31 +4,31 @@ import React from "react";
 
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { User } from "../../models/user";
 import SecurityService from '../../services/securityService';
-
-import Breadcrumb from "../../components/Breadcrumb";
+import { useNavigate } from 'react-router-dom';
 
 
 const SignIn: React.FC = () => {
 
-  const handleLogin = async (user: User) => {
-    console.log("aqui " + JSON.stringify(user))
+  const navigate = useNavigate();
+
+  const handleLogin = async (credentials: { email: string; password: string }) => {
+    console.log("aqui " + JSON.stringify(credentials))
     try {
-      const response = await SecurityService.login(user);
+      const response = await SecurityService.login(credentials as any);
       console.log('Usuario autenticado:', response);
+      // Si el servicio devolvió un token, navegar al home
+      navigate('/');
     } catch (error) {
       console.error('Error al iniciar sesión', error);
     }
   }
   return (
-    <>
-      <Breadcrumb pageName="Sign In" />
-
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] dark:bg-[#0A192F]">
+      <div className="w-full max-w-7xl mx-auto rounded-sm border border-[#9CA3AF] bg-[#F9FAFB] shadow-default dark:border-[#5B5B60] dark:bg-[#0A192F]">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="px-26 py-17.5 text-center">
+            <div className="px-26 py-17.5 text-center bg-[#DDDCDB] dark:bg-[#2D3748]">
 
                 <img
                   className="hidden dark:block"
@@ -46,7 +46,7 @@ const SignIn: React.FC = () => {
                 />
 
 
-              <p className="2xl:px-20">
+              <p className="2xl:px-20 text-[#1E3A8A] dark:text-[#F5F7FA]">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit
                 suspendisse.
               </p>
@@ -176,10 +176,10 @@ const SignIn: React.FC = () => {
             </div>
           </div>
 
-          <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
+          <div className="w-full border-[#9CA3AF] dark:border-[#5B5B60] xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-              <span className="mb-1.5 block font-medium">Start for free</span>
-              <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
+              <span className="mb-1.5 block font-medium text-[#1E3A8A] dark:text-[#1E40AF]">Start for free</span>
+              <h2 className="mb-9 text-2xl font-bold text-[#1E3A8A] dark:text-[#F5F7FA] sm:text-title-xl2">
                 Sign In to TailAdmin
               </h2>
 
@@ -192,36 +192,36 @@ const SignIn: React.FC = () => {
                   email: Yup.string().email("Email inválido").required("El email es obligatorio"),
                   password: Yup.string().required("La contraseña es obligatoria"),
                 })}
-                onSubmit={(values) => {
+                onSubmit={async (values) => {
                   const formattedValues = { ...values };  // Formateo adicional si es necesario
-                  handleLogin(formattedValues);
+                  await handleLogin(formattedValues);
                 }}
 
               >
                 {({ handleSubmit }) => (
-                  <Form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 p-6 bg-white rounded-md shadow-md">
+                  <Form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 p-6 bg-[#F9FAFB] dark:bg-[#2D3748] rounded-md shadow-md">
 
                     {/* Email */}
                     <div>
-                      <label htmlFor="email" className="block text-lg font-medium text-gray-700">Email</label>
-                      <Field type="email" name="email" className="w-full border rounded-md p-2" />
+                      <label htmlFor="email" className="block text-lg font-medium text-[#1E3A8A] dark:text-[#F5F7FA]">Email</label>
+                      <Field type="email" name="email" className="w-full border border-[#9CA3AF] dark:border-[#5B5B60] bg-[#F9FAFB] dark:bg-[#0A192F] text-[#1E3A8A] dark:text-[#F5F7FA] rounded-md p-2 focus:border-[#359E39] focus:ring-[#359E39]" />
                       <ErrorMessage name="email" component="p" className="text-red-500 text-sm" />
                     </div>
 
                     {/* Edad */}
                     <div>
-                      <label htmlFor="password" className="block text-lg font-medium text-gray-700">Password</label>
-                      <Field type="password" name="password" className="w-full border rounded-md p-2" />
+                      <label htmlFor="password" className="block text-lg font-medium text-[#1E3A8A] dark:text-[#F5F7FA]">Password</label>
+                      <Field type="password" name="password" className="w-full border border-[#9CA3AF] dark:border-[#5B5B60] bg-[#F9FAFB] dark:bg-[#0A192F] text-[#1E3A8A] dark:text-[#F5F7FA] rounded-md p-2 focus:border-[#359E39] focus:ring-[#359E39]" />
                       <ErrorMessage name="password" component="p" className="text-red-500 text-sm" />
                     </div>
                     {/* Botón de enviar */}
                     <button
                       type="submit"
-                      className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+                      className="w-full cursor-pointer rounded-lg border border-[#359E39] bg-[#359E39] p-4 text-white transition hover:bg-opacity-90"
                     >
                       Login
                     </button>
-                    <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
+                    <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-[#9CA3AF] dark:border-[#5B5B60] bg-[#DDDCDB] dark:bg-[#2D3748] p-4 hover:bg-opacity-50 dark:hover:bg-opacity-50 text-[#1E3A8A] dark:text-[#F5F7FA]">
                       <span>
                         <svg
                           width="20"
@@ -269,7 +269,7 @@ const SignIn: React.FC = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

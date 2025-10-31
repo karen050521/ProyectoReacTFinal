@@ -37,7 +37,23 @@ class SecurityService extends EventTarget {
             }
 
             const data = await response.json();
+            // Guardamos el objeto user completo
             localStorage.setItem("user", JSON.stringify(data));
+            // Si la respuesta incluye token, guardarlo también en la clave de sesión
+            if (data && (data as any).token) {
+                try {
+                    localStorage.setItem(this.keySession, (data as any).token);
+                } catch (e) {
+                    console.warn('No se pudo guardar session token en localStorage', e);
+                }
+            }
+            // Actualizamos el user en memoria si viene en la respuesta
+            if (data && (data as any).user) {
+                this.user = (data as any).user as User;
+            } else {
+                // Si el servicio devuelve directamente el user en data
+                this.user = data as User;
+            }
             store.dispatch(setUser(data));
             return data;
         } catch (error) {
@@ -49,8 +65,9 @@ class SecurityService extends EventTarget {
         return this.user;
     }
     logout() {
-        this.user = {};
+        this.user = {} as User;
         localStorage.removeItem("user");
+        localStorage.removeItem(this.keySession);
         this.dispatchEvent(new CustomEvent("userChange", { detail: null }));
     }
 

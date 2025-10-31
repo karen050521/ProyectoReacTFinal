@@ -1,12 +1,16 @@
 import axios from "axios";
 import type { Session } from "../models/Session";
 
-const API_URL = (import.meta as any).env.CLASES_NUBES + "/sessions" || "/sessions";
+const RAW_API_BASE_SESS: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_SESS = RAW_API_BASE_SESS ? RAW_API_BASE_SESS.replace(/\/$/, '') : '';
+const API_URL = API_BASE_SESS ? `${API_BASE_SESS}/sessions` : '/sessions';
 
 class SessionService {
     async getSessions(): Promise<Session[]> {
         try {
+            console.debug('SessionService.getSessions -> API_URL=', API_URL);
             const response = await axios.get<Session[]>(API_URL);
+            console.debug('SessionService.getSessions -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
             console.error("Error al obtener sesiones:", error);
