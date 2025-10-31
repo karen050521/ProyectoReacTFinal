@@ -52,6 +52,8 @@ const PermissionUpdate = lazy(() => import('../pages/permission/update'));
 
 // Address
 const AddressList = lazy(() => import('../pages/Address/list'));
+const AddressCreate = lazy(() => import('../pages/Address/create'));
+
 
 // Dashboard examples
 const Profile2 = lazy(() => import('../pages/Profile2'));
@@ -189,6 +191,10 @@ const coreRoutes = [
     component: PermissionUpdate },
 
   // Address
+  { path: '/addresses/user/:userId',
+    title: 'Address',
+    component: AddressCreate },
+    
   { path: '/addresses', 
     title: 'Addresses', 
     component: AddressList },
@@ -197,6 +203,7 @@ const coreRoutes = [
   { path: '/profile2', 
     title: 'Profile v2', 
     component: Profile2 },
+
 ];
 
 const routes = [...coreRoutes];
