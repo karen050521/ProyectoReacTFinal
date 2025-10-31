@@ -123,42 +123,6 @@ const CreateAddress = () => {
     return (
         <div>
             <Breadcrumb pageName="Crear Dirección" />
-            
-            {/* Debug: Mostrar usuario actual */}
-            <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded">
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Usuario Actual:</h3>
-                <pre className="text-xs text-gray-600 dark:text-gray-400">
-                    {JSON.stringify(JSON.parse(localStorage.getItem("user") || "{}"), null, 2)}
-                </pre>
-                <div className="mt-2 space-x-2">
-                    <button 
-                        onClick={async () => {
-                            const user = JSON.parse(localStorage.getItem("user") || "{}");
-                            console.log("=== ANÁLISIS USUARIO ===");
-                            console.log("Usuario Firebase:", user);
-                            console.log("Email:", user.email);
-                            
-                            // Buscar en backend usando función temporal
-                            const match = await findUserByEmail(user.email);
-                            console.log("Usuario match en backend:", match);
-                            console.log("ID del backend:", match?.id);
-                        }}
-                        className="px-3 py-1 bg-blue-500 text-white text-xs rounded"
-                    >
-                        Analizar Usuario + Backend
-                    </button>
-                    <button 
-                        onClick={() => {
-                            localStorage.clear();
-                            console.log("LocalStorage limpiado");
-                        }}
-                        className="px-3 py-1 bg-red-500 text-white text-xs rounded"
-                    >
-                        Limpiar Session (Debug)
-                    </button>
-                </div>
-            </div>
-            
             <AddressFormValidator
                 handleCreate={handleCreateAddress}
                 mode={1} // 1 significa creación

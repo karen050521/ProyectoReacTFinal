@@ -67,6 +67,7 @@ const AddressFormValidator: React.FC<AddressFormProps> = ({
                 // Convert empty strings to null for latitude and longitude
                 const formattedValues = {
                     ...values,
+                    id: address?.id, // Include the address ID for updates
                     latitude: values.latitude === "" ? null : Number(values.latitude),
                     longitude: values.longitude === "" ? null : Number(values.longitude),
                 };

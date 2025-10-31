@@ -15,9 +15,26 @@ const UpdateAddressPage = () => {
     useEffect(() => {
         console.log("Id->"+id)
         const fetchAddress = async () => {
-            if (!id) return; // Evitar errores si el ID no está disponible
-            const addressData = await addressService.getAddressById(parseInt(id));
-            setAddress(addressData);
+            if (!id) {
+                console.error("No se proporcionó ID en la URL");
+                return;
+            }
+            
+            try {
+                console.log("Cargando dirección con ID:", id);
+                const addressData = await addressService.getAddressById(parseInt(id));
+                console.log("Dirección cargada:", addressData);
+                setAddress(addressData);
+            } catch (error) {
+                console.error("Error cargando dirección:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudo cargar la dirección",
+                    icon: "error",
+                    timer: 3000
+                });
+                navigate("/addresses");
+            }
         };
 
         fetchAddress();
@@ -25,7 +42,21 @@ const UpdateAddressPage = () => {
 
     const handleUpdateAddress = async (theAddress: Address) => {
         try {
-            const updatedAddress = await addressService.updateAddress(theAddress.id || 0, theAddress);
+            console.log("Datos a actualizar:", theAddress);
+            console.log("ID de la dirección:", theAddress.id);
+            
+            if (!theAddress.id) {
+                console.error("ERROR: No se proporcionó ID de dirección para actualizar");
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudo identificar la dirección a actualizar",
+                    icon: "error",
+                    timer: 3000
+                });
+                return;
+            }
+            
+            const updatedAddress = await addressService.updateAddress(theAddress.id, theAddress);
             if (updatedAddress) {
                 Swal.fire({
                     title: "Completado",
