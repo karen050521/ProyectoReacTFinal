@@ -51,18 +51,18 @@ class SecurityService extends EventTarget {
             // Guardar token de sesión si existe en la respuesta
             if (data.token) {
                 localStorage.setItem(this.keySession, data.token);
-                console.log("✅ Token guardado:", data.token);
+                console.log("Token guardado:", data.token);
             } else if (data.access_token) {
                 localStorage.setItem(this.keySession, data.access_token);
-                console.log("✅ Access token guardado:", data.access_token);
+                console.log("Access token guardado:", data.access_token);
             } else {
-                console.warn("⚠️ No se encontró token en la respuesta del backend");
+                console.warn("No se encontró token en la respuesta del backend");
             }
             
             // Actualizar Redux store
             store.dispatch(setUser(data.user || data));
             
-            // 🔥 NOTIFICAR AL AuthContext QUE HAY NUEVA SESIÓN
+            // NOTIFICAR AL AuthContext QUE HAY NUEVA SESIÓN
             window.dispatchEvent(new CustomEvent('authStateChanged', {
                 detail: { user: data.user || data, token: data.token || data.access_token }
             }));
@@ -76,19 +76,19 @@ class SecurityService extends EventTarget {
 
     // Método para login con Firebase OAuth usando endpoints existentes
     async loginWithFirebase(firebaseUser: any) {
-        console.log("🔗 Integrando usuario de Firebase con backend...");
+        console.log("Integrando usuario de Firebase con backend...");
         
-        // 🔍 DEBUG: Verificar datos del usuario Firebase
-        console.log("🔍 DEBUG: Datos recibidos de Firebase:", {
+        // DEBUG: Verificar datos del usuario Firebase
+        console.log("DEBUG: Datos recibidos de Firebase:", {
             uid: firebaseUser.id,
             email: firebaseUser.email,
             name: firebaseUser.name,
             displayName: firebaseUser.displayName
         });
 
-        // 🚨 VALIDACIÓN: Verificar que tenemos email
+        // VALIDACIÓN: Verificar que tenemos email
         if (!firebaseUser.email || firebaseUser.email.trim() === '') {
-            console.error("❌ CRÍTICO: Usuario Firebase sin email válido");
+            console.error("CRÍTICO: Usuario Firebase sin email válido");
             throw new Error("Usuario Firebase no tiene email válido. Contacta soporte.");
         }
 
@@ -96,14 +96,14 @@ class SecurityService extends EventTarget {
             // 1. Primero intentar crear usuario directamente (si existe, obtendremos error)
             let backendUser = null;
             
-            console.log("🔗 Intentando crear/obtener usuario en backend...");
+            console.log("Intentando crear/obtener usuario en backend...");
             const userData = {
                 name: firebaseUser.displayName || firebaseUser.name || 'Usuario Firebase',
                 email: firebaseUser.email,
                 provider: 'google'
             };
             
-            console.log("🔍 Datos para enviar al backend:", userData);
+            console.log("Datos para enviar al backend:", userData);
             
             try {
                 // Intentar crear usuario
@@ -115,10 +115,10 @@ class SecurityService extends EventTarget {
                 
                 if (createUserResponse.ok) {
                     backendUser = await createUserResponse.json();
-                    console.log(" Usuario creado en backend:", backendUser.id);
+                    console.log("Usuario creado en backend:", backendUser.id);
                 } else if (createUserResponse.status === 400) {
                     // Usuario ya existe, buscar por email
-                    console.log(" Usuario ya existe, buscando por email...");
+                    console.log("Usuario ya existe, buscando por email...");
                     
                     const usersResponse = await fetch(`${this.API_URL}/users`, {
                         method: 'GET',
@@ -127,14 +127,14 @@ class SecurityService extends EventTarget {
                     
                     if (usersResponse.ok) {
                         const users = await usersResponse.json();
-                        console.log("📋 Usuarios obtenidos:", users.length);
+                        console.log("Usuarios obtenidos:", users.length);
                         
                         backendUser = users.find((user: any) => 
                             user.email === firebaseUser.email
                         );
                         
                         if (backendUser) {
-                            console.log("✅ Usuario existente encontrado:", backendUser.id);
+                            console.log("Usuario existente encontrado:", backendUser.id);
                         } else {
                             throw new Error("Usuario existe pero no se pudo encontrar por email");
                         }
@@ -249,7 +249,7 @@ class SecurityService extends EventTarget {
         localStorage.removeItem(this.keySession); // Limpiar token de sesión
         store.dispatch(setUser(null)); // Limpiar Redux store
         this.dispatchEvent(new CustomEvent("userChange", { detail: null }));
-        console.log("✅ Usuario deslogueado y token eliminado");
+        console.log("Usuario deslogueado y token eliminado");
     }
 
     isAuthenticated() {

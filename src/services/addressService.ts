@@ -1,7 +1,7 @@
 import api from "../interceptors/axiosInterceptor";
 import type { Address } from "../models/Address";
 
-const API_URL = "/addresses"; // ✅ Quitamos /api porque ya está en baseURL
+const API_URL = "/addresses"; //  Quitamos /api porque ya está en baseURL
 
 class AddressService {
     async getAddresses(): Promise<Address[]> {

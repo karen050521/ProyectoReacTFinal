@@ -1,4 +1,3 @@
-"use client"
 import React from 'react';
 import { Address } from '../../models/Address';
 import AddressFormValidator from '../../components/Address/AddressFormValidator'; 
