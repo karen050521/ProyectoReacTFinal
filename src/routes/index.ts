@@ -15,10 +15,10 @@ const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
 const ListUsers = lazy(() => import('../pages/Users/list'));
 const CreatetUser = lazy(() => import('../pages/Users/create'));
 const UpdatetUser = lazy(() => import('../pages/Users/update'));
-// Address pages (Color Amarillo - CRUD)
-const ListAddresses = lazy(() => import('../pages/Address/list'));
-const CreateAddress = lazy(() => import('../pages/Address/create'));
-const UpdateAddress = lazy(() => import('../pages/Address/update'));
+// Address pages (Material UI - CRUD Completo)
+const ListAddresses = lazy(() => import('../pages/Address/AddressPage'));
+const CreateAddress = lazy(() => import('../pages/Address/CreateAddressPage'));
+const UpdateAddress = lazy(() => import('../pages/Address/UpdateAddressPage'));
 
 // ADDRESS (Color Amarillo - CRUD completo)
 // TODO: Descommentar cuando se creen las páginas

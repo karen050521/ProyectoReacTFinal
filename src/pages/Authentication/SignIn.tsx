@@ -29,7 +29,7 @@ const SignIn: React.FC = () => {
       const response = await SecurityService.login(values);
       console.log('Usuario autenticado:', response);
       
-      // 🔥 Si el login es exitoso, redirigir al dashboard
+      //  Si el login es exitoso, redirigir al dashboard
       if (response) {
         console.log("✅ Login tradicional exitoso, redirigiendo...");
         navigate('/dashboard');
@@ -46,10 +46,10 @@ const SignIn: React.FC = () => {
     
     try {
       await signIn();
-      console.log("✅ Google login exitoso!");
+      console.log(" Google login exitoso!");
       // La redirección se maneja en el useEffect
     } catch (error: any) {
-      console.error("❌ Error en Google login:", error);
+      console.error(" Error en Google login:", error);
       setError(error.message || "Error al iniciar sesión con Google");
     } finally {
       setIsGoogleLoading(false);
