@@ -118,7 +118,7 @@ const coreRoutes = [
       path: '/user-roles/assign',
       title: 'Assign User Role',
       component: AssignUserRole,
-    }
+    },
     
  
 
