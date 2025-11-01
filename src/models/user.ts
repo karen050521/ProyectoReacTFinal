@@ -8,7 +8,7 @@ import { Permission } from "./Permission";
 import { RolePermission } from "./RolePermission";    
 
 export interface User {
-  id?: number;
+  id?: string | number;
   name: string;
   email: string;
   created_at?: string;

@@ -74,16 +74,16 @@ const GenericTable = <T extends Record<string, any>>({
                         >
                           {action.name === 'edit' ? (
                             <svg
-                            color='black'
+                              color='black'
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
                               height="24"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                               className="lucide lucide-file-pen-line-icon lucide-file-pen-line"
                             >
                               <path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
@@ -92,16 +92,16 @@ const GenericTable = <T extends Record<string, any>>({
                             </svg>
                           ) : action.name === 'delete' ? (
                             <svg
-                            color='red'
+                              color='red'
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
                               height="24"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                               className="lucide lucide-trash-icon lucide-trash"
                             >
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />

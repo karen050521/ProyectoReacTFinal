@@ -9,6 +9,16 @@ const DropdownUser = () => {
   const user = useSelector((state: RootState) => state.user.user); // Obtener el valor de la variable del usuario
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    // Eliminar datos del localStorage
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    
+    // Refrescar la página para actualizar el estado
+    window.location.reload();
+  };
+
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
@@ -158,7 +168,10 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+        >
           <svg
             className="fill-current"
             width="22"

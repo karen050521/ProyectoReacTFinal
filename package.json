@@ -14,10 +14,15 @@
     "url": "https://tailadmin.com"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@material-tailwind/react": "^2.1.10",
+    "@mui/icons-material": "^7.3.4",
+    "@mui/material": "^7.3.4",
     "@reduxjs/toolkit": "^2.9.2",
     "apexcharts": "^3.41.0",
     "axios": "^1.12.2",
+    "firebase": "^12.4.0",
     "formik": "^2.4.6",
     "headlessui": "^0.0.0",
     "jsvectormap": "^1.5.3",
