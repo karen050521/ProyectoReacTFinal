@@ -54,9 +54,8 @@ const PermissionCreate = lazy(() => import('../pages/permission/create'));
 const PermissionUpdate = lazy(() => import('../pages/permission/update'));
 
 // ====== Address ======
-//const AddressList = lazy(() => import('../pages/Address/list'));
-const AddressCreate = lazy(() => import('../pages/Address/create'));
-//const ListAddresses = lazy(() => import('../pages/Address/AddressPage'));
+// Address pages (Material UI - CRUD Completo)
+const ListAddresses = lazy(() => import('../pages/Address/AddressPage'));
 const CreateAddress = lazy(() => import('../pages/Address/CreateAddressPage'));
 const UpdateAddress = lazy(() => import('../pages/Address/UpdateAddressPage'));
 
@@ -138,11 +137,10 @@ const coreRoutes = [
   { path: '/permissions/update/:id', title: 'Update Permission', component: PermissionUpdate },
 
   // Addresses
-  //{ path: '/addresses', title: 'Addresses', component: ListAddresses },
+  { path: '/addresses', title: 'Addresses', component: ListAddresses },
   { path: '/addresses/create', title: 'Create Address', component: CreateAddress },
   { path: '/addresses/update/:id', title: 'Update Address', component: UpdateAddress },
-  { path: '/addresses/user/:userId', title: 'Address', component: AddressCreate },
-  
+
   // USER ROLE Routes (N:N User <-> Role)
  /* {
     path: '/user-roles',
