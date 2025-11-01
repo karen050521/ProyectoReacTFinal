@@ -35,8 +35,8 @@ const RoleUpdate = lazy(() => import('../pages/Role/update'));
 const RolePermissionList = lazy(() => import('../pages/RolePermission/list'));
 
 // ====== User Roles ======
- const ManageUserRoles = lazy(() => import('../pages/UserRole/UserRoleManagementPage'));
- const AssignUserRole = lazy(() => import('../pages/UserRole/AssignUserRolePage'));
+ //const ManageUserRoles = lazy(() => import('../pages/UserRole/UserRoleManagementPage'));
+ //const AssignUserRole = lazy(() => import('../pages/UserRole/AssignUserRolePage'));
 
 // ====== Sessions ======
 const SessionList = lazy(() => import('../pages/session/list'));
@@ -109,7 +109,7 @@ const coreRoutes = [
   
   
     // USER ROLE Routes (N:N User <-> Role)
-    {
+    /*{
       path: '/user-roles',
       title: 'User Role Management',
       component: ManageUserRoles,
@@ -119,7 +119,7 @@ const coreRoutes = [
       title: 'Assign User Role',
       component: AssignUserRole,
     },
-    
+    */
  
 
   // Sessions
@@ -144,7 +144,7 @@ const coreRoutes = [
   { path: '/addresses/user/:userId', title: 'Address', component: AddressCreate },
   
   // USER ROLE Routes (N:N User <-> Role)
-  {
+ /* {
     path: '/user-roles',
     title: 'User Role Management',
     component: ManageUserRoles,
@@ -153,7 +153,7 @@ const coreRoutes = [
     path: '/user-roles/assign',
     title: 'Assign User Role',
     component: AssignUserRole,
-  }
+  } /*
   // ===== COLOR AMARILLO ROUTES =====
   // TODO: Descommentar cuando se creen las páginas correspondientes
   /*{
