@@ -1,11 +1,9 @@
-
 export interface Password {
-    id?: number;
-  user_id: number;
-  content: string;
-  startAt: string; // ISO
-  endAt?: string | null;
-  created_at?: string;
-  updated_at?: string;
+    id?: number;              // Identificador único del registro
+    user_id: number;          // Usuario propietario de esta contraseña
+    content: string;          // Contraseña encriptada/hasheada
+    startAt: string;          // Cuándo INICIA la validez de esta contraseña
+    endAt?: string | null;    // Cuándo EXPIRA esta contraseña (opcional)
+    created_at?: string;      // Metadatos: cuándo se creó el registro
+    updated_at?: string;      // Metadatos: última modificación
 }
-

@@ -57,6 +57,39 @@ class UserRoleService {
             return false;
         }
     }
+
+    // POST /api/user-roles/user/{userId}/role/{roleId} → asignar rol a usuario
+    async assignRoleToUser(userId: number, roleId: number): Promise<UserRole | null> {
+        try {
+            const response = await axios.post<UserRole>(`${API_URL}/user/${userId}/role/${roleId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error al asignar rol a usuario:", error);
+            return null;
+        }
+    }
+
+    // GET /api/user-roles/role/{roleId} → obtener usuarios por rol
+    async getUsersByRole(roleId: number): Promise<UserRole[]> {
+        try {
+            const response = await axios.get<UserRole[]>(`${API_URL}/role/${roleId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error al obtener usuarios por rol:", error);
+            return [];
+        }
+    }
+
+    // GET /api/user-roles/user/{userId} → obtener roles por usuario
+    async getRolesByUser(userId: number): Promise<UserRole[]> {
+        try {
+            const response = await axios.get<UserRole[]>(`${API_URL}/user/${userId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error al obtener roles por usuario:", error);
+            return [];
+        }
+    }
 }
 
 // Exportamos una instancia de la clase para reutilizarla
@@ -68,3 +101,6 @@ export const getUserRoleById = (id: string) => userRoleService.getUserRoleById(i
 export const createUserRole = (userRole: Omit<UserRole, "id">) => userRoleService.createUserRole(userRole);
 export const updateUserRole = (id: string, userRole: Partial<UserRole>) => userRoleService.updateUserRole(id, userRole);
 export const deleteUserRole = (id: string) => userRoleService.deleteUserRole(id);
+export const assignRoleToUser = (userId: number, roleId: number) => userRoleService.assignRoleToUser(userId, roleId);
+export const getUsersByRole = (roleId: number) => userRoleService.getUsersByRole(roleId);
+export const getRolesByUser = (userId: number) => userRoleService.getRolesByUser(userId);

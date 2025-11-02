@@ -27,9 +27,9 @@ const ProfileCreate = lazy(() => import('../pages/Profile/create'));
 const ProfileUpdate = lazy(() => import('../pages/Profile/update'));
 
 // ====== Roles ======
-const RoleList = lazy(() => import('../pages/Role/list'));
-const RoleCreate = lazy(() => import('../pages/Role/create'));
-const RoleUpdate = lazy(() => import('../pages/Role/update'));
+const RoleList = lazy(() => import('../pages/Role/RolePage'));
+const RoleCreate = lazy(() => import('../pages/Role/CreateRolePage'));
+const RoleUpdate = lazy(() => import('../pages/Role/UpdateRolePage'));
 
 // ====== Role Permissions ======
 const RolePermissionList = lazy(() => import('../pages/RolePermission/list'));
@@ -44,9 +44,9 @@ const SessionCreate = lazy(() => import('../pages/session/create'));
 const SessionUpdate = lazy(() => import('../pages/session/update'));
 
 // ====== Passwords ======
-const ListPassword = lazy(() => import('../pages/Password/list'));
-const CreatePassword = lazy(() => import('../pages/Password/create'));
-const UpdatePassword = lazy(() => import('../pages/Password/update'));
+const PasswordList = lazy(() => import('../pages/Password/PasswordPage'));
+const PasswordCreate = lazy(() => import('../pages/Password/CreatePasswordPage'));
+const PasswordUpdate = lazy(() => import('../pages/Password/UpdatePasswordPage'));
 
 // ====== Permissions ======
 const PermissionList = lazy(() => import('../pages/permission/list'));
@@ -127,9 +127,9 @@ const coreRoutes = [
   { path: '/sessions/update/:id', title: 'Update Session', component: SessionUpdate },
 
   // Passwords // PASSWORD Routes (1:N User -> Password)
-  { path: '/passwords', title: 'Password Management', component: ListPassword },
-  { path: '/passwords/create', title: 'Create Password', component: CreatePassword },
-  { path: '/passwords/update/:id', title: 'Update Password', component: UpdatePassword },
+  { path: '/passwords', title: 'Password Management', component: PasswordList },
+  { path: '/passwords/create', title: 'Create Password', component: PasswordCreate },
+  { path: '/passwords/update/:id', title: 'Update Password', component: PasswordUpdate },
 
   // Permissions
   { path: '/permissions', title: 'Permissions', component: PermissionList },
