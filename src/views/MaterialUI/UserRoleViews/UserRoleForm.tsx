@@ -151,26 +151,43 @@ const UserRoleForm: React.FC<UserRoleFormProps> = ({ isEditMode = false }) => {
         }
     };
 
-    // 📅 Formatear fechas para input datetime-local
+    // 📅 FUNCIÓN PARA FORMATEAR FECHAS PARA INPUT (aplicar correcciones de timezone)
     const formatDateForInput = (dateString?: string): string => {
-        if (!dateString) return '';
+        if (!dateString) {
+            console.log('📅 formatDateForInput: dateString vacío');
+            return '';
+        }
+        
+        console.log('📅 formatDateForInput: Input =', dateString);
         
         try {
+            // Limpieza de zona horaria como en otros formularios
             const cleanDateString = dateString
                 .replace('Z', '')
                 .replace(/[+-]\d{2}:\d{2}$/, '');
             
-            const date = new Date(cleanDateString);
-            if (isNaN(date.getTime())) return '';
+            console.log('📅 formatDateForInput: Cleaned =', cleanDateString);
             
+            const date = new Date(cleanDateString);
+            
+            if (isNaN(date.getTime())) {
+                console.error('📅 formatDateForInput: Fecha inválida después de limpieza');
+                return '';
+            }
+            
+            // Convertir a formato datetime-local (YYYY-MM-DDTHH:mm)
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             
-            return `${year}-${month}-${day}T${hours}:${minutes}`;
-        } catch {
+            const result = `${year}-${month}-${day}T${hours}:${minutes}`;
+            console.log('📅 formatDateForInput: Output =', result);
+            
+            return result;
+        } catch (error) {
+            console.error('📅 formatDateForInput: Error:', error);
             return '';
         }
     };

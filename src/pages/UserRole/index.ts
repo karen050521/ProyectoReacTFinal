@@ -1,8 +1,5 @@
-// Exportación simplificada - Una sola página maneja todos los casos
+// Exportaciones de páginas de UserRole
 export { default as UserRolePage } from './UserRolePage';
-
-// TODO: Eliminar estas páginas redundantes:
-// - AssignUserRolePage.tsx (ahora: /user-roles/assign)
-// - UpdateUserRolePage.tsx (ahora: /user-roles/update/:id) 
-// - UserRolesByUserPage.tsx (ahora: /user-roles/user/:userId)
-// - UserRoleManagementPage.tsx (vacío)
+export { default as AssignUserRolePage } from './AssignUserRolePage';
+export { default as UpdateUserRolePage } from './UpdateUserRolePage';
+export { default as UserRolesByUserPage } from './UserRolesByUserPage';
