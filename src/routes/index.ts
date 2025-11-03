@@ -14,12 +14,14 @@ const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
 const ListUsers = lazy(() => import('../pages/Users/list'));
 const CreateUser = lazy(() => import('../pages/Users/create'));
 const UpdateUser = lazy(() => import('../pages/Users/update'));
+const ViewUser = lazy(() => import('../pages/Users/view'));
 
 // Profile
 const Profile = lazy(() => import('../pages/Profile'));
 const ProfileList = lazy(() => import('../pages/Profile/list'));
 const ProfileCreate = lazy(() => import('../pages/Profile/create'));
 const ProfileUpdate = lazy(() => import('../pages/Profile/update'));
+const UserProfile = lazy(() => import('../pages/Profile/userProfile'));
 
 // Roles
 const RoleList = lazy(() => import('../pages/Role/list'));
@@ -39,6 +41,7 @@ const UserRoleUpdate = lazy(() => import('../pages/UserRole/update'));
 const SessionList = lazy(() => import('../pages/session/list'));
 const SessionCreate = lazy(() => import('../pages/session/create'));
 const SessionUpdate = lazy(() => import('../pages/session/update'));
+const UserSessions = lazy(() => import('../pages/session/userSessions'));
 
 // Passwords
 const PasswordList = lazy(() => import('../pages/Password/list'));
@@ -52,6 +55,8 @@ const PermissionUpdate = lazy(() => import('../pages/permission/update'));
 
 // Address
 const AddressList = lazy(() => import('../pages/Address/list'));
+const AddressView = lazy(() => import('../pages/Address/view'));
+const AddressEdit = lazy(() => import('../pages/Address/edit'));
 const AddressCreate = lazy(() => import('../pages/Address/create'));
 
 
@@ -100,6 +105,10 @@ const coreRoutes = [
     title: 'Create User', 
     component: CreateUser },
 
+  { path: '/users/view/:id', 
+    title: 'View User', 
+    component: ViewUser },
+
   { path: '/users/update/:id', 
     title: 'Update User', 
     component: UpdateUser },
@@ -108,6 +117,10 @@ const coreRoutes = [
   { path: '/profiles', 
     title: 'Profiles', 
     component: ProfileList },
+
+  { path: '/profiles/user/:userId', 
+    title: 'User Profile', 
+    component: UserProfile },
 
   { path: '/profiles/create', 
     title: 'Create Profile', 
@@ -160,6 +173,10 @@ const coreRoutes = [
     title: 'Sessions', 
     component: SessionList },
 
+  { path: '/sessions/user/:userId', 
+    title: 'User Sessions', 
+    component: UserSessions },
+
   { path: '/sessions/create', 
     title: 'Create Session', 
     component: SessionCreate },
@@ -191,13 +208,17 @@ const coreRoutes = [
     component: PermissionUpdate },
 
   // Address
-  { path: '/addresses/user/:userId',
-    title: 'Address',
-    component: AddressCreate },
-    
   { path: '/addresses', 
     title: 'Addresses', 
     component: AddressList },
+
+  { path: '/addresses/user/:userId',
+    title: 'Address View',
+    component: AddressView },
+
+  { path: '/addresses/edit/:userId',
+    title: 'Edit Address',
+    component: AddressEdit },
 
   // Misc / examples
   { path: '/profile2', 

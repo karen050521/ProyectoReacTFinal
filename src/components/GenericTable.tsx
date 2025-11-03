@@ -109,7 +109,7 @@ const GenericTable = <T extends Record<string, any>>({
                               <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                             </svg>
                           ) : (
-                            action.label
+                            <span style={{ color: '#1f2937', fontWeight: '600' }}>{action.label}</span>
                           )}
                         </Button>
                       </span>

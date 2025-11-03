@@ -28,6 +28,20 @@ class SessionService {
         }
     }
 
+    async getSessionsByUserId(userId: number): Promise<Session[]> {
+        try {
+            console.debug('SessionService.getSessionsByUserId -> userId=', userId);
+            const endpoint = API_BASE_SESS ? `${API_BASE_SESS}/sessions/user/${userId}` : `/sessions/user/${userId}`;
+            console.debug('SessionService.getSessionsByUserId -> endpoint=', endpoint);
+            const response = await axios.get<Session[]>(endpoint);
+            console.debug('SessionService.getSessionsByUserId -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
+            return response.data;
+        } catch (error) {
+            console.error("Error al obtener sesiones del usuario:", error);
+            return [];
+        }
+    }
+
     async createSession(session: Omit<Session, "id">): Promise<Session | null> {
         try {
             const response = await axios.post<Session>(API_URL, session);
@@ -65,6 +79,7 @@ export const sessionService = new SessionService();
 // Named exports para compatibilidad con imports existentes
 export const getSessions = () => sessionService.getSessions();
 export const getSessionById = (id: string) => sessionService.getSessionById(id);
+export const getSessionsByUserId = (userId: number) => sessionService.getSessionsByUserId(userId);
 export const createSession = (session: Omit<Session, "id">) => sessionService.createSession(session);
 export const updateSession = (id: string, session: Partial<Session>) => sessionService.updateSession(id, session);
 export const deleteSession = (id: string) => sessionService.deleteSession(id);

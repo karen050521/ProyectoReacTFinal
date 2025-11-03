@@ -28,6 +28,20 @@ class ProfileService {
         }
     }
 
+    async getProfileByUserId(userId: number): Promise<Profile | null> {
+        try {
+            console.debug('ProfileService.getProfileByUserId -> userId=', userId);
+            const endpoint = API_BASE_PROF ? `${API_BASE_PROF}/profiles/user/${userId}` : `/profiles/user/${userId}`;
+            console.debug('ProfileService.getProfileByUserId -> endpoint=', endpoint);
+            const response = await axios.get<Profile>(endpoint);
+            console.debug('ProfileService.getProfileByUserId -> status=', response.status, 'data=', response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Perfil de usuario no encontrado:", error);
+            return null;
+        }
+    }
+
     async createProfile(profile: Omit<Profile, "id">): Promise<Profile | null> {
         try {
             const response = await axios.post<Profile>(API_URL, profile);
@@ -65,6 +79,7 @@ export const profileService = new ProfileService();
 // Named exports para compatibilidad con imports existentes
 export const getProfiles = () => profileService.getProfiles();
 export const getProfileById = (id: number) => profileService.getProfileById(id);
+export const getProfileByUserId = (userId: number) => profileService.getProfileByUserId(userId);
 export const createProfile = (profile: Omit<Profile, "id">) => profileService.createProfile(profile);
 export const updateProfile = (id: number, profile: Partial<Profile>) => profileService.updateProfile(id, profile);
 export const deleteProfile = (id: number) => profileService.deleteProfile(id);

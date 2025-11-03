@@ -1,6 +1,7 @@
 import { User } from "../../models/user";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
 
 
 // Definimos la interfaz para los props
@@ -15,6 +16,8 @@ user?: User | null;
 
 const UserFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handleUpdate,user }) => {
 
+const navigate = useNavigate();
+
 const handleSubmit = (formattedValues: User) => {
     if (mode === 1 && handleCreate) {
         handleCreate(formattedValues);  // Si `handleCreate` está definido, lo llamamos
@@ -23,6 +26,10 @@ const handleSubmit = (formattedValues: User) => {
     } else {
         console.error('No function provided for the current mode');
     }
+};
+
+const handleCancel = () => {
+    navigate("/users");
 };
 
 return (
@@ -56,13 +63,32 @@ return (
                     <ErrorMessage name="email" component="p" className="text-red-500 text-sm" />
                 </div>
 
-                {/* Botón de enviar */}
-                <button
-                    type="submit"
-                    className={`py-2 px-4 text-white rounded-md ${mode === 1 ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600"}`}
-                >
-                    {mode === 1 ? "Crear" : "Actualizar"}
-                </button>
+                {/* Botones de acción */}
+                <div className="flex gap-4 mt-4">
+                    <button
+                        type="submit"
+                        style={{ backgroundColor: '#16a34a', color: '#ffffff' }}
+                        className="py-2 px-6 font-semibold rounded-md hover:opacity-90"
+                    >
+                        {mode === 1 ? "Guardar" : "Guardar Cambios"}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                        className="py-2 px-6 font-semibold rounded-md hover:opacity-90"
+                    >
+                        Descartar
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        style={{ backgroundColor: '#6b7280', color: '#ffffff' }}
+                        className="py-2 px-6 font-semibold rounded-md hover:opacity-90"
+                    >
+                        Atrás
+                    </button>
+                </div>
             </Form>
         )}
     </Formik>
