@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
+import { formatDateForInput, formatDateForBackend } from '../../../utils/dateUtils';
 import {
     Box,
     Card,
@@ -151,74 +152,12 @@ const UserRoleForm: React.FC<UserRoleFormProps> = ({ isEditMode = false }) => {
         }
     };
 
-    // 📅 FUNCIÓN PARA FORMATEAR FECHAS PARA INPUT (aplicar correcciones de timezone)
-    const formatDateForInput = (dateString?: string): string => {
-        if (!dateString) {
-            console.log('📅 formatDateForInput: dateString vacío');
-            return '';
-        }
-        
-        console.log('📅 formatDateForInput: Input =', dateString);
-        
-        try {
-            // Limpieza de zona horaria como en otros formularios
-            const cleanDateString = dateString
-                .replace('Z', '')
-                .replace(/[+-]\d{2}:\d{2}$/, '');
-            
-            console.log('📅 formatDateForInput: Cleaned =', cleanDateString);
-            
-            const date = new Date(cleanDateString);
-            
-            if (isNaN(date.getTime())) {
-                console.error('📅 formatDateForInput: Fecha inválida después de limpieza');
-                return '';
-            }
-            
-            // Convertir a formato datetime-local (YYYY-MM-DDTHH:mm)
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            
-            const result = `${year}-${month}-${day}T${hours}:${minutes}`;
-            console.log('📅 formatDateForInput: Output =', result);
-            
-            return result;
-        } catch (error) {
-            console.error('📅 formatDateForInput: Error:', error);
-            return '';
-        }
-    };
-
-    // 💾 MANEJAR ENVÍO DEL FORMULARIO
+    //  MANEJAR ENVÍO DEL FORMULARIO
     const handleSubmit = async (
         values: UserRoleFormData,
         { setSubmitting, setFieldError }: FormikHelpers<UserRoleFormData>
     ) => {
         try {
-            // 🔧 SOLUCIÓN DEFINITIVA: Usar el formato EXACTO que funciona en CREATE
-            const formatDateForBackend = (dateString: string): string => {
-                if (!dateString) return '';
-                
-                try {
-                    const date = new Date(dateString);
-                    if (isNaN(date.getTime())) {
-                        console.error('Fecha inválida:', dateString);
-                        return '';
-                    }
-                    
-                    // Usar el MISMO formato que el CREATE parsea exitosamente: "%Y-%m-%d %H:%M:%S"
-                    const formatted = date.toISOString().slice(0, 19).replace('T', ' ');
-                    console.log(`📅 Backend format: ${dateString} → ${formatted}`);
-                    return formatted;
-                } catch (error) {
-                    console.error('Error al formatear fecha:', error);
-                    return '';
-                }
-            };
-
             // 🔧 Para UPDATE: Enviar solo fechas (como funciona en CREATE)
             // Para CREATE: Enviar datos completos  
             let payload: any;

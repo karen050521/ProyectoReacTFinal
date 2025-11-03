@@ -1,97 +1,128 @@
+/**
+ * 🪝 Hook reutilizable para cargar datos auxiliares (users y roles)
+ * 
+ * Elimina la duplicación de código en:
+ * - UserRoleList.tsx
+ * - UserSelect.tsx  
+ * - RoleSelect.tsx
+ * - PasswordList.tsx
+ * - PasswordForm.tsx
+ * - Y cualquier otro componente que necesite estos datos
+ */
+
 import { useState, useEffect } from 'react';
+import { userService } from '../services/userService';
 import { roleService } from '../services/roleService';
-import api from '../interceptors/axiosInterceptor';
+import type { User } from '../models/user';
 import type { Role } from '../models/Role';
 
-export interface User {
-    id: number;
-    name: string;
-    email: string;
+interface UseAuxiliaryDataReturn {
+    users: User[];
+    roles: Role[];
+    loading: boolean;
+    error: string | null;
+    getUserName: (userId: number) => string;
+    getRoleName: (roleId: number) => string;
+    refetchUsers: () => Promise<void>;
+    refetchRoles: () => Promise<void>;
 }
 
-/**
- * Hook reutilizable para cargar datos auxiliares (usuarios y roles)
- * Usado en UserRoleList, UserRoleForm y otros componentes
- */
-export const useAuxiliaryData = () => {
+export const useAuxiliaryData = (): UseAuxiliaryDataReturn => {
     const [users, setUsers] = useState<User[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const loadUsers = async (): Promise<User[]> => {
+    // 👤 CARGAR USUARIOS
+    const loadUsers = async (): Promise<void> => {
         try {
-            const response = await api.get('/users');
-            const usersData = response.data;
+            setLoading(true);
+            setError(null);
+            const usersData = await userService.getUsers();
             setUsers(usersData);
-            return usersData;
+            console.log('✅ useAuxiliaryData: Users loaded:', usersData.length);
         } catch (err) {
-            console.error('Error al obtener usuarios:', err);
+            console.error('❌ useAuxiliaryData: Error loading users:', err);
             setError('Error al cargar usuarios');
-            return [];
-        }
-    };
-
-    const loadRoles = async (): Promise<Role[]> => {
-        try {
-            const rolesData = await roleService.getRoles();
-            setRoles(rolesData);
-            return rolesData;
-        } catch (err) {
-            console.error('Error al obtener roles:', err);
-            setError('Error al cargar roles');
-            return [];
-        }
-    };
-
-    const loadAuxiliaryData = async () => {
-        setLoading(true);
-        setError(null);
-        
-        try {
-            await Promise.all([
-                loadUsers(),
-                loadRoles()
-            ]);
-        } catch (err) {
-            console.error('Error cargando datos auxiliares:', err);
-            setError('Error al cargar datos auxiliares');
         } finally {
             setLoading(false);
         }
     };
 
-    // Funciones auxiliares para obtener nombres
+    // 🎭 CARGAR ROLES
+    const loadRoles = async (): Promise<void> => {
+        try {
+            setLoading(true);
+            setError(null);
+            const rolesData = await roleService.getRoles();
+            setRoles(rolesData);
+            console.log('✅ useAuxiliaryData: Roles loaded:', rolesData.length);
+        } catch (err) {
+            console.error('❌ useAuxiliaryData: Error loading roles:', err);
+            setError('Error al cargar roles');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 🔍 FUNCIÓN PARA OBTENER NOMBRE DE USUARIO POR ID
     const getUserName = (userId: number): string => {
         const user = users.find(u => u.id === userId);
-        return user ? `${user.name} (${user.email})` : `Usuario #${userId}`;
+        if (!user) {
+            console.warn(`⚠️ useAuxiliaryData: User not found for ID ${userId}`);
+            return `Usuario ${userId}`;
+        }
+        return user.name || user.email || `Usuario ${userId}`;
     };
 
+    // 🔍 FUNCIÓN PARA OBTENER NOMBRE DE ROL POR ID
     const getRoleName = (roleId: number): string => {
         const role = roles.find(r => r.id === roleId);
-        return role ? role.name : `Rol #${roleId}`;
+        if (!role) {
+            console.warn(`⚠️ useAuxiliaryData: Role not found for ID ${roleId}`);
+            return `Rol ${roleId}`;
+        }
+        return role.name || `Rol ${roleId}`;
     };
 
-    // Cargar datos al montar el hook
+    // 🔄 FUNCIONES DE RE-FETCH (para casos que necesiten refrescar datos)
+    const refetchUsers = async (): Promise<void> => {
+        await loadUsers();
+    };
+
+    const refetchRoles = async (): Promise<void> => {
+        await loadRoles();
+    };
+
+    // 🚀 CARGAR DATOS AL MONTAR EL HOOK
     useEffect(() => {
-        loadAuxiliaryData();
+        const loadData = async () => {
+            setLoading(true);
+            try {
+                // Cargar ambos en paralelo para mejor performance
+                await Promise.all([
+                    loadUsers(),
+                    loadRoles()
+                ]);
+                console.log('🎉 useAuxiliaryData: All data loaded successfully');
+            } catch (err) {
+                console.error('❌ useAuxiliaryData: Error in initial load:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
     }, []);
 
     return {
-        // Estados
         users,
         roles,
         loading,
         error,
-        
-        // Métodos
-        loadUsers,
-        loadRoles,
-        loadAuxiliaryData,
         getUserName,
         getRoleName,
-        
-        // Utilidades
-        clearError: () => setError(null)
+        refetchUsers,
+        refetchRoles
     };
 };

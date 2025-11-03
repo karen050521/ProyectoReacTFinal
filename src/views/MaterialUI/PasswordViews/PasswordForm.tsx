@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
+import { formatDateForInput, formatDateForBackend } from '../../../utils/dateUtils';
 import {
     Box,
     Card,
@@ -120,60 +121,6 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ isEditMode = false }) => {
         // Cargar usuarios al montar el componente
         loadUsers();
     }, [isEditMode, id]);
-
-    // Función auxiliar para convertir fecha del servidor a formato datetime-local
-    const formatDateForInput = (dateString?: string): string => {
-        if (!dateString) return '';
-        
-        try {
-            // Crear la fecha tratando el string como local (sin conversión UTC)
-            const cleanDateString = dateString.replace('Z', '').replace('+00:00', '');
-            const date = new Date(cleanDateString);
-            
-            // Verificar si la fecha es válida
-            if (isNaN(date.getTime())) return '';
-            
-            // Formatear para input datetime-local
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            
-            return `${year}-${month}-${day}T${hours}:${minutes}`;
-        } catch {
-            return '';
-        }
-    };
-
-    // Función para convertir fecha del frontend al formato que espera el backend
-    const formatDateForBackend = (dateString: string): string => {
-        if (!dateString) return '';
-        
-        try {
-            // El input datetime-local da formato: 2024-11-02T10:00
-            // El backend espera: 2024-11-02 10:00:00
-            
-            // Validar que la fecha tenga el formato correcto
-            if (!dateString.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)) {
-                console.error('Formato de fecha inválido:', dateString);
-                return '';
-            }
-            
-            // Crear objeto Date para validar que la fecha sea válida
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                console.error('Fecha inválida:', dateString);
-                return '';
-            }
-            
-            // Convertir al formato esperado por el backend
-            return dateString.replace('T', ' ') + ':00';
-        } catch (error) {
-            console.error('Error al formatear fecha:', error);
-            return '';
-        }
-    };
 
     const loadUsers = async (): Promise<void> => {
         setLoadingUsers(true);
