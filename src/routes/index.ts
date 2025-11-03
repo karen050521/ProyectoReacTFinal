@@ -35,8 +35,9 @@ const RoleUpdate = lazy(() => import('../pages/Role/UpdateRolePage'));
 const RolePermissionList = lazy(() => import('../pages/RolePermission/list'));
 
 // ====== User Roles ======
- //const ManageUserRoles = lazy(() => import('../pages/UserRole/UserRoleManagementPage'));
- //const AssignUserRole = lazy(() => import('../pages/UserRole/AssignUserRolePage'));
+const UserRoleList = lazy(() => import('../pages/UserRole/UserRolePage'));
+const AssignUserRole = lazy(() => import('../pages/UserRole/AssignUserRolePage'));
+const UpdateUserRole = lazy(() => import('../pages/UserRole/UpdateUserRolePage'));
 
 // ====== Sessions ======
 const SessionList = lazy(() => import('../pages/session/list'));
@@ -106,19 +107,10 @@ const coreRoutes = [
   // Role Permissions
   { path: '/role-permissions', title: 'Role Permissions', component: RolePermissionList },
   
-  
-    // USER ROLE Routes (N:N User <-> Role)
-    /*{
-      path: '/user-roles',
-      title: 'User Role Management',
-      component: ManageUserRoles,
-    },
-    {
-      path: '/user-roles/assign',
-      title: 'Assign User Role',
-      component: AssignUserRole,
-    },
-    */
+  // User Roles
+  { path: '/user-roles', title: 'User Role Management', component: UserRoleList },
+  { path: '/user-roles/assign', title: 'Assign User Role', component: AssignUserRole },
+  { path: '/user-roles/update/:id', title: 'Update User Role', component: UpdateUserRole },
  
 
   // Sessions
@@ -140,27 +132,6 @@ const coreRoutes = [
   { path: '/addresses', title: 'Addresses', component: ListAddresses },
   { path: '/addresses/create', title: 'Create Address', component: CreateAddress },
   { path: '/addresses/update/:id', title: 'Update Address', component: UpdateAddress },
-
-  // USER ROLE Routes (N:N User <-> Role)
- /* {
-    path: '/user-roles',
-    title: 'User Role Management',
-    component: ManageUserRoles,
-  },
-  {
-    path: '/user-roles/assign',
-    title: 'Assign User Role',
-    component: AssignUserRole,
-  } /*
-  // ===== COLOR AMARILLO ROUTES =====
-  // TODO: Descommentar cuando se creen las páginas correspondientes
-  /*{
-    path: '/addresses/:id',
-    title: 'Address Detail',
-    component: DetailAddress,
-  },
-  
-  */
 ];
 
 const routes = [...coreRoutes];
