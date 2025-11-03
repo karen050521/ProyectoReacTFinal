@@ -1,16 +1,15 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import UserRoleList from '../../views/MaterialUI/UserRoleViews/UserRoleList';
 
 /**
- * Página alternativa para mostrar las asignaciones por usuario específico
+ * Página para mostrar las asignaciones de un usuario específico
  * Útil cuando se navega desde el perfil de un usuario
  */
 const UserRolesByUserPage: React.FC = () => {
-    // TODO: Obtener userId de los parámetros de la URL
-    // const { userId } = useParams<{ userId: string }>();
+    const { userId } = useParams<{ userId: string }>();
     
-    return <UserRoleList />;
-    // return <UserRoleList userId={parseInt(userId || '0')} />;
+    return <UserRoleList userId={userId ? parseInt(userId, 10) : undefined} />;
 };
 
 export default UserRolesByUserPage;
