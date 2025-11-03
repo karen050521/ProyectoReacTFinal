@@ -1,16 +1,22 @@
 "use client"
 import React from "react";
-
-
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useMsal } from '@azure/msal-react';
+import { useDispatch } from 'react-redux';
+import { loginRequest } from '../../config/msalConfig';
+import { callMsGraph, getUserPhoto } from '../../services/microsoftGraphService';
+import { setAuthenticated, setUserData, setUserPhoto } from '../../store/microsoftAuthSlice';
 import SecurityService from '../../services/securityService';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 
 const SignIn: React.FC = () => {
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { instance, accounts } = useMsal();
 
   const handleLogin = async (credentials: { email: string; password: string }) => {
     console.log("aqui " + JSON.stringify(credentials))
@@ -23,6 +29,66 @@ const SignIn: React.FC = () => {
       console.error('Error al iniciar sesión', error);
     }
   }
+
+  const handleMicrosoftLogin = async () => {
+    try {
+      console.log('1. Iniciando login con Microsoft...');
+      
+      // Login con Microsoft
+      const loginResponse = await instance.loginPopup(loginRequest);
+      console.log('2. Login exitoso:', loginResponse);
+      
+      // Obtener token de acceso
+      const tokenResponse = await instance.acquireTokenSilent({
+        scopes: ['User.Read'],
+        account: loginResponse.account,
+      });
+      console.log('3. Token obtenido');
+
+      // Obtener datos del usuario desde Microsoft Graph
+      console.log('4. Obteniendo datos del usuario...');
+      const userData = await callMsGraph(tokenResponse.accessToken);
+      console.log('5. Datos del usuario obtenidos:', userData);
+      
+      // Guardar datos en Redux
+      dispatch(setAuthenticated(true));
+      dispatch(setUserData({
+        id: userData.id,
+        displayName: userData.displayName,
+        email: userData.mail,
+        givenName: userData.givenName,
+        surname: userData.surname,
+        userPrincipalName: userData.userPrincipalName,
+        jobTitle: userData.jobTitle,
+        officeLocation: userData.officeLocation,
+        mobilePhone: userData.mobilePhone,
+      }));
+      console.log('6. Datos guardados en Redux');
+
+      // Intentar obtener la foto del usuario
+      try {
+        const photo = await getUserPhoto(tokenResponse.accessToken);
+        if (photo) {
+          dispatch(setUserPhoto(photo));
+          console.log('7. Foto guardada');
+        }
+      } catch (photoError) {
+        console.warn('No se pudo obtener la foto del usuario:', photoError);
+      }
+
+      toast.success(`¡Bienvenido ${userData.displayName}!`);
+      console.log('8. Redirigiendo a /');
+      
+      // Pequeño delay para que el toast se vea
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 500);
+      
+    } catch (error) {
+      console.error('Error en el login con Microsoft:', error);
+      toast.error('Error al iniciar sesión con Microsoft');
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] dark:bg-[#0A192F]">
       <div className="w-full max-w-7xl mx-auto rounded-sm border border-[#9CA3AF] bg-[#F9FAFB] shadow-default dark:border-[#5B5B60] dark:bg-[#0A192F]">
@@ -180,7 +246,7 @@ const SignIn: React.FC = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium text-[#1E3A8A] dark:text-[#1E40AF]">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-[#1E3A8A] dark:text-[#F5F7FA] sm:text-title-xl2">
-                Sign In to Sistema de Seguridad
+                Sign In to TailAdmin
               </h2>
 
               <Formik
@@ -221,7 +287,7 @@ const SignIn: React.FC = () => {
                     >
                       Login
                     </button>
-                    <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-[#9CA3AF] dark:border-[#5B5B60] bg-[#DDDCDB] dark:bg-[#2D3748] p-4 hover:bg-opacity-50 dark:hover:bg-opacity-50 text-[#1E3A8A] dark:text-[#F5F7FA]">
+                    <button type="button" className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-[#9CA3AF] dark:border-[#5B5B60] bg-[#DDDCDB] dark:bg-[#2D3748] p-4 hover:bg-opacity-50 dark:hover:bg-opacity-50 text-[#1E3A8A] dark:text-[#F5F7FA]">
                       <span>
                         <svg
                           width="20"
@@ -256,6 +322,29 @@ const SignIn: React.FC = () => {
                         </svg>
                       </span>
                       Sign in with Google
+                    </button>
+
+                    {/* Botón de Microsoft OAuth */}
+                    <button 
+                      type="button"
+                      onClick={handleMicrosoftLogin}
+                      className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-[#9CA3AF] dark:border-[#5B5B60] bg-[#DDDCDB] dark:bg-[#2D3748] p-4 hover:bg-opacity-50 dark:hover:bg-opacity-50 text-[#1E3A8A] dark:text-[#F5F7FA]"
+                    >
+                      <span>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 21 21"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M10 0H0V10H10V0Z" fill="#F25022" />
+                          <path d="M21 0H11V10H21V0Z" fill="#7FBA00" />
+                          <path d="M10 11H0V21H10V11Z" fill="#00A4EF" />
+                          <path d="M21 11H11V21H21V11Z" fill="#FFB900" />
+                        </svg>
+                      </span>
+                      Sign in with Microsoft
                     </button>
 
                   </Form>

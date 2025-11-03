@@ -59,6 +59,8 @@ const AddressView = lazy(() => import('../pages/Address/view'));
 const AddressEdit = lazy(() => import('../pages/Address/edit'));
 const AddressCreate = lazy(() => import('../pages/Address/create'));
 
+// Microsoft OAuth
+const MicrosoftAuthPage = lazy(() => import('../pages/Authentication/MicrosoftAuthPage'));
 
 // Dashboard examples
 const Profile2 = lazy(() => import('../pages/Profile2'));
@@ -219,6 +221,15 @@ const coreRoutes = [
   { path: '/addresses/edit/:userId',
     title: 'Edit Address',
     component: AddressEdit },
+
+  { path: '/addresses/create',
+    title: 'Create Address',
+    component: AddressCreate },
+
+  // Microsoft OAuth
+  { path: '/auth/microsoft',
+    title: 'Microsoft OAuth',
+    component: MicrosoftAuthPage },
 
   // Misc / examples
   { path: '/profile2', 

@@ -9,6 +9,8 @@ import Loader from './common/Loader';
 import routes from './routes';
 
 import ProtectedRoute from "../src/components/Auth/ProtectedRoute";
+import MicrosoftCallback from './components/Auth/MicrosoftCallback';
+import MsalSync from './components/Auth/MsalSync';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -22,7 +24,7 @@ function App() {
   return loading ? (
     <Loader />
   ) : (
-    <>
+    <MsalSync>
       <Toaster
         position="top-right"
         reverseOrder={false}
@@ -31,6 +33,7 @@ function App() {
       <Routes>
         <Route path="/auth/signin" element={<SignIn />} />
         <Route path="/auth/signup" element={<SignUp />} />
+        <Route path="/auth/callback" element={<MicrosoftCallback />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<DefaultLayout />}>
@@ -52,7 +55,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </>
+    </MsalSync>
   );
 }
 

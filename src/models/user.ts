@@ -9,6 +9,7 @@ import { RolePermission } from "./RolePermission";
 
 export interface User {
   id?: number;
+  _id?: string; // Para compatibilidad con respuestas de API que usan _id
   name: string;
   email: string;
   created_at?: string;
