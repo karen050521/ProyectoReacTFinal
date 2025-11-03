@@ -180,7 +180,7 @@ const SignIn: React.FC = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium text-[#1E3A8A] dark:text-[#1E40AF]">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-[#1E3A8A] dark:text-[#F5F7FA] sm:text-title-xl2">
-                Sign In to TailAdmin
+                Sign In to Sistema de Seguridad
               </h2>
 
               <Formik

@@ -25,38 +25,38 @@ const GenericTable = <T extends Record<string, any>>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-[#9CA3AF] dark:divide-[#5B5B60]">
+        <thead className="bg-[#9CA3AF] dark:bg-[#1E3A5A]">
           <tr>
             {columns.map((col) => (
               <th
                 key={col}
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-[#F9FAFB] uppercase tracking-wider dark:text-[#F5F7FA]"
               >
                 {col}
               </th>
             ))}
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium text-[#F9FAFB] uppercase tracking-wider dark:text-[#F5F7FA]"
             >
               Actions
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-[#F9FAFB] divide-y divide-[#9CA3AF] dark:bg-[#0A1628] dark:divide-[#5B5B60]">
           {data.map((item, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-gray-50">
+            <tr key={rowIndex} className="hover:bg-[#DDDCDB] dark:hover:bg-[#1E3A5A]">
               {columns.map((col) => (
                 <td
                   key={col}
-                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
+                  className="px-6 py-4 whitespace-nowrap text-sm text-[#1E3A8A] dark:text-[#F5F7FA]"
                 >
                   {(item as any)[col]}
                 </td>
               ))}
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-[#1E3A8A] dark:text-[#F5F7FA]">
                 <div className="flex items-center gap-2">
                   {actions.map((action) => (
                     <Tooltip
@@ -67,9 +67,9 @@ const GenericTable = <T extends Record<string, any>>({
                       <span className="inline-block">
                         <Button
                           size="sm"
-                          color={action.name === 'delete' ? 'red' : 'blue'}
+                          color={action.name === 'delete' ? 'red' : 'blue-gray'}
                           onClick={() => handleAction(action.name, item)}
-                          className="!px-2 !py-1"
+                          className={`!px-2 !py-1 ${action.name === 'edit' ? '!bg-gray-400 hover:!bg-gray-500' : ''}`}
                           {...({} as any)}
                         >
                           {action.name === 'edit' ? (
@@ -109,7 +109,7 @@ const GenericTable = <T extends Record<string, any>>({
                               <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                             </svg>
                           ) : (
-                            <span style={{ color: '#1f2937', fontWeight: '600' }}>{action.label}</span>
+                            <span className="text-[#1E3A8A] font-semibold dark:text-[#F5F7FA]">{action.label}</span>
                           )}
                         </Button>
                       </span>

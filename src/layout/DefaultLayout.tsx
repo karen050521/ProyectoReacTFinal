@@ -9,7 +9,7 @@ const DefaultLayout = () => {
 
   return (
     <Provider store={store}>
-      <div className="dark:bg-boxdark-2 dark:text-bodydark">
+      <div className="bg-[#DDDCDB] dark:bg-[#050D1A] dark:text-bodydark">
         {/* <!-- ===== Page Wrapper Start ===== --> */}
         <div className="flex h-screen overflow-hidden">
           {/* <!-- ===== Sidebar Start ===== --> */}
