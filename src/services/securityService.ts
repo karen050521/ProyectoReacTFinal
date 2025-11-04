@@ -382,12 +382,69 @@ class SecurityService extends EventTarget {
         return this.user;
     }
     logout() {
+        console.log("🔄 Iniciando logout completo...");
+        
+        // Limpiar usuario interno
         this.user = { name: '', email: '' } as User;
+        
+        // 🔥 LIMPIEZA COMPLETA DE LOCALSTORAGE
+        // Claves principales del sistema
         localStorage.removeItem("user");
-        localStorage.removeItem(this.keySession); // Limpiar token de sesión
-        store.dispatch(setUser(null)); // Limpiar Redux store
+        localStorage.removeItem(this.keySession); // session
+        localStorage.removeItem("authToken");
+        
+        // 🔥 LIMPIEZA ESPECÍFICA DE MICROSOFT/MSAL
+        // MSAL guarda datos con prefijos específicos
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (
+                key.startsWith('msal.') ||           // Cache de MSAL
+                key.startsWith('msal-') ||           // Tokens MSAL
+                key.includes('microsoft') ||         // Datos Microsoft
+                key.includes('accessToken') ||       // Tokens de acceso
+                key.includes('idToken') ||           // Tokens ID
+                key.includes('refreshToken') ||      // Tokens refresh
+                key.includes('azure') ||             // Datos Azure
+                key.includes('graph')                // Datos Microsoft Graph
+            )) {
+                keysToRemove.push(key);
+            }
+        }
+        
+        // Remover todas las claves encontradas
+        keysToRemove.forEach(key => {
+            console.log(`🗑️ Removiendo clave: ${key}`);
+            localStorage.removeItem(key);
+        });
+        
+        // 🔥 LIMPIEZA ESPECÍFICA DE FIREBASE/GOOGLE
+        const firebaseKeysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (
+                key.startsWith('firebase:') ||       // Cache Firebase
+                key.includes('google') ||            // Datos Google
+                key.includes('gapi') ||              // Google API
+                key.includes('oauth')                // OAuth tokens
+            )) {
+                firebaseKeysToRemove.push(key);
+            }
+        }
+        
+        firebaseKeysToRemove.forEach(key => {
+            console.log(`🗑️ Removiendo clave Firebase: ${key}`);
+            localStorage.removeItem(key);
+        });
+        
+        // Limpiar Redux store
+        store.dispatch(setUser(null));
+        
+        // Emitir evento de cambio
         this.dispatchEvent(new CustomEvent("userChange", { detail: null }));
-        console.log("Usuario deslogueado y token eliminado");
+        
+        console.log("✅ Logout completo - LocalStorage limpiado");
+        console.log("📊 Claves restantes en localStorage:", localStorage.length);
     }
 
     isAuthenticated() {

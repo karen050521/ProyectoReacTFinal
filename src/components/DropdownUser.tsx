@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { useSelector, useDispatch } from "react-redux";
 import { logout as logoutMicrosoft } from '../store/microsoftAuthSlice';
+import { useAuth } from '../context/AuthContext'; // 🔥 AGREGAR AuthContext
+import securityService from '../services/securityService'; // 🔥 AGREGAR securityService
 import toast from 'react-hot-toast';
 
 import UserOne from '../images/user/user-01.png';
@@ -16,6 +18,9 @@ const DropdownUser = () => {
   const microsoftUser = useSelector((state: RootState) => state.microsoftAuth.user);
   const microsoftPhoto = useSelector((state: RootState) => state.microsoftAuth.photo);
   const isMicrosoftAuth = useIsAuthenticated();
+  
+  //  AuthContext para logout unificado
+  const { signOut } = useAuth();
   
   const { instance } = useMsal();
   const dispatch = useDispatch();
@@ -183,32 +188,83 @@ const DropdownUser = () => {
         </ul>
         <button 
           onClick={async () => {
-            if (isMicrosoftAuth) {
-              // Logout de Microsoft
-              try {
+            try {
+              console.log('Iniciando logout unificado...');
+              
+              // LOGOUT UNIFICADO - maneja todos los tipos de autenticación
+              
+              // 1. Limpiar Redux de Microsoft
+              dispatch(logoutMicrosoft());
+              
+              // 2. Si hay sesión Microsoft, cerrarla y limpiar cache MSAL
+              if (isMicrosoftAuth) {
                 console.log('Cerrando sesión de Microsoft...');
-                
-                // Limpiar estado de Redux
-                dispatch(logoutMicrosoft());
-                
-                // Logout de Microsoft
-                await instance.logoutPopup({
-                  mainWindowRedirectUri: '/auth/signin'
-                });
-                
-                toast.success('Sesión cerrada exitosamente');
-                navigate('/auth/signin', { replace: true });
-              } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-                toast.error('Error al cerrar sesión');
-                // Redirigir de todos modos
-                navigate('/auth/signin', { replace: true });
+                try {
+                  // Logout popup de MSAL
+                  await instance.logoutPopup({
+                    mainWindowRedirectUri: '/auth/signin'
+                  });
+                  
+                  // LIMPIEZA ADICIONAL DEL CACHE MSAL
+                  console.log('Limpiando cache MSAL...');
+                  const accounts = instance.getAllAccounts();
+                  for (const account of accounts) {
+                    try {
+                      await instance.logoutPopup({
+                        account: account,
+                        mainWindowRedirectUri: '/auth/signin'
+                      });
+                    } catch (accountError) {
+                      console.warn('Error limpiando cuenta MSAL:', accountError);
+                    }
+                  }
+                  
+                  // Limpiar cache manualmente si es posible
+                  try {
+                    // @ts-ignore - Acceso a método interno para limpieza completa
+                    if (instance.clearCache) {
+                      instance.clearCache();
+                    }
+                  } catch (cacheError) {
+                    console.warn('No se pudo limpiar cache MSAL internamente');
+                  }
+                  
+                } catch (msalError) {
+                  console.warn('Error en logout MSAL (continuando):', msalError);
+                }
               }
-            } else {
-              // Logout tradicional
-              localStorage.removeItem('user');
-              toast.success('Sesión cerrada');
+              
+              // 3. Usar AuthProvider para logout unificado (limpia Firebase, backend, localStorage)
+              await signOut();
+              
+              // 4. Usar securityService para limpiar completamente el backend y localStorage
+              securityService.logout();
+              
+              // 5. LIMPIEZA ADICIONAL DE SEGURIDAD
+              // Limpiar sessionStorage también
+              console.log('Limpiando sessionStorage...');
+              sessionStorage.clear();
+              
+              console.log('Logout unificado completado');
+              toast.success('Sesión cerrada exitosamente');
               navigate('/auth/signin', { replace: true });
+              
+            } catch (error) {
+              console.error('Error durante logout:', error);
+              
+              // Fallback: forzar limpieza manual si falla
+              console.log('Ejecutando limpieza manual de emergencia...');
+              try {
+                dispatch(logoutMicrosoft());
+                securityService.logout();
+                localStorage.clear(); // Limpieza forzada
+                sessionStorage.clear(); // Limpieza forzada
+                navigate('/auth/signin', { replace: true });
+                window.location.reload(); // Reinicio forzado
+              } catch (fallbackError) {
+                console.error('Error en limpieza de emergencia:', fallbackError);
+                toast.error('Error al cerrar sesión. Recarga la página.');
+              }
             }
           }}
           className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
