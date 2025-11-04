@@ -28,6 +28,7 @@ import {
   Add as AddIcon,
   LocationOn as LocationIcon,
   Home as HomeIcon,
+  Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAddressController } from "../../../controllers/useAddressController";
@@ -48,6 +49,10 @@ const AddressList: React.FC = () => {
 
   const handleEdit = (address: Address) => {
     navigate(`/addresses/update/${address.id}`);
+  };
+
+  const handleView = (address: Address) => {
+    navigate(`/addresses/view/${address.id}`);
   };
 
   const handleDelete = async () => {
@@ -199,9 +204,18 @@ const AddressList: React.FC = () => {
                       <TableCell align="center">
                         <IconButton
                           size="small"
+                          onClick={() => handleView(address)}
+                          color="info"
+                          title="Ver dirección con mapa"
+                        >
+                          <VisibilityIcon />
+                        </IconButton>
+                        <IconButton
+                          size="small"
                           onClick={() => handleEdit(address)}
                           color="primary"
                           title="Editar dirección"
+                          sx={{ ml: 1 }}
                         >
                           <EditIcon />
                         </IconButton>

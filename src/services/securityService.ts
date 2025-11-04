@@ -2,6 +2,7 @@ import { User } from "../models/user";
 import { store } from "../store/store";
 import { setUser } from "../store/userSlice";
 import api from "../interceptors/axiosInterceptor";
+import { UserStorageManager } from "../utils/userStorageManager";
 
 // Interfaz específica para login
 interface LoginCredentials {
@@ -45,22 +46,20 @@ class SecurityService extends EventTarget {
 
             const data = await response.json();
             
-            // Guardar usuario y token por separado
-            localStorage.setItem("user", JSON.stringify(data.user || data));
+            // 🔥 USAR EL NUEVO STORAGE MANAGER
+            const userToStore = data.user || data;
+            const token = data.token || data.access_token;
             
-            // Guardar token de sesión si existe en la respuesta
-            if (data.token) {
-                localStorage.setItem(this.keySession, data.token);
-                console.log("Token guardado:", data.token);
-            } else if (data.access_token) {
-                localStorage.setItem(this.keySession, data.access_token);
-                console.log("Access token guardado:", data.access_token);
+            if (token) {
+                UserStorageManager.saveUser(userToStore, token);
+                console.log("✅ Usuario y token guardados con UserStorageManager");
             } else {
-                console.warn("No se encontró token en la respuesta del backend");
+                UserStorageManager.saveUser(userToStore);
+                console.warn("⚠️ No se encontró token en la respuesta del backend");
             }
             
             // Actualizar Redux store
-            store.dispatch(setUser(data.user || data));
+            store.dispatch(setUser(userToStore));
             
             // NOTIFICAR AL AuthContext QUE HAY NUEVA SESIÓN
             window.dispatchEvent(new CustomEvent('authStateChanged', {
@@ -203,15 +202,14 @@ class SecurityService extends EventTarget {
                     throw new Error("No se recibió token en la respuesta de sesión");
                 }
                 
-                // 3. Guardar datos en localStorage
+                // 3. Guardar datos con UserStorageManager
                 const userToStore = {
                     ...backendUser,
                     provider: 'google',
                     firebase_uid: firebaseUser.uid
                 };
                 
-                localStorage.setItem("user", JSON.stringify(userToStore));
-                localStorage.setItem(this.keySession, sessionData_response.token);
+                UserStorageManager.saveUser(userToStore, sessionData_response.token);
                 
                 // 4. Actualizar Redux store
                 store.dispatch(setUser(userToStore));
@@ -221,7 +219,7 @@ class SecurityService extends EventTarget {
                     detail: { user: userToStore, token: sessionData_response.token }
                 }));
                 
-                console.log("Integración Firebase-Backend completada exitosamente");
+                console.log("✅ Integración Firebase-Backend completada exitosamente");
                 
                 return {
                     user: userToStore,
@@ -347,8 +345,7 @@ class SecurityService extends EventTarget {
                     }
                 };
                 
-                localStorage.setItem("user", JSON.stringify(userToStore));
-                localStorage.setItem(this.keySession, sessionData_response.token);
+                UserStorageManager.saveUser(userToStore, sessionData_response.token);
                 
                 // 4. Actualizar store Redux
                 store.dispatch(setUser(userToStore));
@@ -359,7 +356,7 @@ class SecurityService extends EventTarget {
                     detail: { user: userToStore, token: sessionData_response.token }
                 }));
                 
-                console.log("Integración Microsoft-Backend completada exitosamente");
+                console.log("✅ Integración Microsoft-Backend completada exitosamente");
                 
                 return {
                     user: userToStore,
@@ -387,11 +384,8 @@ class SecurityService extends EventTarget {
         // Limpiar usuario interno
         this.user = { name: '', email: '' } as User;
         
-        // 🔥 LIMPIEZA COMPLETA DE LOCALSTORAGE
-        // Claves principales del sistema
-        localStorage.removeItem("user");
-        localStorage.removeItem(this.keySession); // session
-        localStorage.removeItem("authToken");
+        // 🔥 USAR EL NUEVO STORAGE MANAGER PARA LIMPIEZA COMPLETA
+        UserStorageManager.clearUser();
         
         // 🔥 LIMPIEZA ESPECÍFICA DE MICROSOFT/MSAL
         // MSAL guarda datos con prefijos específicos
