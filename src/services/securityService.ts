@@ -240,6 +240,144 @@ class SecurityService extends EventTarget {
             throw error;
         }
     }
+
+    // Método para login con Microsoft MSAL usando endpoints existentes
+    async loginWithMicrosoft(microsoftUser: any) {
+        console.log("Integrando usuario de Microsoft con backend...");
+        
+        // DEBUG: Verificar datos del usuario Microsoft
+        console.log("DEBUG: Datos recibidos de Microsoft:", {
+            id: microsoftUser.id,
+            email: microsoftUser.email,
+            displayName: microsoftUser.displayName,
+            userPrincipalName: microsoftUser.userPrincipalName
+        });
+
+        // VALIDACIÓN: Verificar que tenemos email
+        const email = microsoftUser.email || microsoftUser.userPrincipalName;
+        if (!email || email.trim() === '') {
+            console.error("CRÍTICO: Usuario Microsoft sin email válido");
+            throw new Error("Usuario Microsoft no tiene email válido. Contacta soporte.");
+        }
+
+        try {
+            // 1. Primero intentar crear usuario directamente (si existe, obtendremos error)
+            let backendUser = null;
+            
+            console.log("Intentando crear/obtener usuario en backend...");
+            const userData = {
+                name: microsoftUser.displayName || 'Usuario Microsoft',
+                email: email,
+                provider: 'microsoft'
+            };
+            
+            console.log("Datos para enviar al backend:", userData);
+            
+            try {
+                // Intentar crear usuario
+                const createUserResponse = await fetch(`${this.API_URL}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+                
+                console.log("Respuesta creación usuario - Status:", createUserResponse.status);
+                
+                if (createUserResponse.ok) {
+                    // Usuario creado exitosamente
+                    backendUser = await createUserResponse.json();
+                    console.log("✅ Usuario Microsoft creado en backend:", backendUser.id);
+                } else if (createUserResponse.status === 409) {
+                    // Usuario ya existe, buscarlo
+                    console.log("Usuario ya existe, buscando por email...");
+                    const findUserResponse = await fetch(`${this.API_URL}/users/email/${encodeURIComponent(email)}`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (findUserResponse.ok) {
+                        backendUser = await findUserResponse.json();
+                        console.log("✅ Usuario Microsoft encontrado en backend:", backendUser.id);
+                    } else {
+                        throw new Error(`No se pudo encontrar usuario existente: ${findUserResponse.status}`);
+                    }
+                } else {
+                    throw new Error(`Error ${createUserResponse.status}: ${await createUserResponse.text()}`);
+                }
+                
+            } catch (fetchError) {
+                console.error("Error en creación/búsqueda de usuario:", fetchError);
+                throw fetchError;
+            }
+            
+            if (!backendUser) {
+                throw new Error("No se pudo crear ni encontrar el usuario en el backend");
+            }
+            
+            // 2. Crear sesión para el usuario (reutilizar lógica de Firebase)
+            console.log("Creando sesión en backend...");
+            
+            const expirationDate = new Date();
+            expirationDate.setHours(expirationDate.getHours() + 24);
+            const expirationString = expirationDate.toISOString().slice(0, 19).replace('T', ' ');
+            
+            const sessionData = {
+                state: 'active',
+                expiration: expirationString
+            };
+            
+            try {
+                const sessionResponse = await api.post(
+                    `/sessions/user/${backendUser.id}`,
+                    sessionData
+                );
+                
+                const sessionData_response = sessionResponse.data;
+                console.log("Sesión Microsoft creada exitosamente. Token:", sessionData_response.token?.substring(0, 20) + "...");
+                
+                // 3. Guardar en localStorage
+                const userToStore = {
+                    ...backendUser,
+                    provider: 'microsoft',
+                    microsoftData: {
+                        id: microsoftUser.id,
+                        userPrincipalName: microsoftUser.userPrincipalName,
+                        jobTitle: microsoftUser.jobTitle,
+                        officeLocation: microsoftUser.officeLocation
+                    }
+                };
+                
+                localStorage.setItem("user", JSON.stringify(userToStore));
+                localStorage.setItem(this.keySession, sessionData_response.token);
+                
+                // 4. Actualizar store Redux
+                store.dispatch(setUser(userToStore));
+                this.user = userToStore;
+                
+                // 5. Emitir evento para AuthProvider
+                window.dispatchEvent(new CustomEvent('authStateChanged', {
+                    detail: { user: userToStore, token: sessionData_response.token }
+                }));
+                
+                console.log("Integración Microsoft-Backend completada exitosamente");
+                
+                return {
+                    user: userToStore,
+                    session: sessionData_response,
+                    message: "Microsoft login integrado con backend"
+                };
+                
+            } catch (sessionError) {
+                console.error('Error específico creando sesión:', sessionError);
+                const errorMessage = sessionError instanceof Error ? sessionError.message : String(sessionError);
+                throw new Error(`Falló la creación de sesión: ${errorMessage}`);
+            }
+            
+        } catch (error) {
+            console.error('Error durante integración Microsoft-Backend:', error);
+            throw error;
+        }
+    }
     getUser() {
         return this.user;
     }

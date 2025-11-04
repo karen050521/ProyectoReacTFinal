@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
-import Breadcrumb from "../components/Breadcrumb";
-import userImg from "../images/user/user-06.png";
+import { RootState } from "../../store/store";
+import Breadcrumb from "../../components/Breadcrumb";
+import userImg from "../../images/user/user-06.png";
 
 const Profile: React.FC = () => {
   // Obtener datos del usuario tradicional
@@ -24,14 +24,9 @@ const Profile: React.FC = () => {
   
   const displayPhoto = isMicrosoftAuth 
     ? microsoftPhoto 
-    : userImg;
+    : traditionalUser?.profile?.photo || userImg;
 
   const authMethod = isMicrosoftAuth ? "Microsoft OAuth" : "Autenticación Manual";
-
-  // ID del usuario (manejar tanto _id como id)
-  const userId = isMicrosoftAuth 
-    ? microsoftUser?.id 
-    : (traditionalUser?._id || traditionalUser?.id);
 
   // Datos adicionales solo de Microsoft
   const jobTitle = microsoftUser?.jobTitle;
@@ -121,7 +116,7 @@ const Profile: React.FC = () => {
               </div>
               <div className="flex flex-col items-center justify-center gap-1 px-4 xsm:flex-row">
                 <span className="font-semibold text-black dark:text-white">
-                  {userId ? (typeof userId === 'string' ? userId.substring(0, 8) : userId) : 'N/A'}
+                  {isMicrosoftAuth ? microsoftUser?.id.substring(0, 8) : traditionalUser?.id}
                 </span>
                 <span className="text-sm">ID</span>
               </div>
@@ -229,25 +224,7 @@ const Profile: React.FC = () => {
                 {/* Información de usuario tradicional */}
                 {!isMicrosoftAuth && traditionalUser && (
                   <>
-                    <div className="border-b border-stroke px-7 py-4 dark:border-strokedark">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h5 className="font-medium text-black dark:text-white">Nombre</h5>
-                          <p className="text-sm">{traditionalUser.name}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {userId && (
-                      <div className="border-b border-stroke px-7 py-4 dark:border-strokedark">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h5 className="font-medium text-black dark:text-white">ID de Usuario</h5>
-                            <p className="text-sm">{userId}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+    
 
                     {traditionalUser.profile?.phone && (
                       <div className="px-7 py-4">

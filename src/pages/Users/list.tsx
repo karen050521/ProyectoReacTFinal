@@ -73,21 +73,33 @@ const ListUsers: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>User List</h2>
+        <div className="p-6">
+            <div className="mb-6 flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">User List</h2>
+                <button
+                    onClick={() => navigate("/users/create")}
+                    style={{ backgroundColor: '#16a34a', color: '#ffffff' }}
+                    className="py-2 px-6 font-semibold rounded-md hover:opacity-90 flex items-center gap-2"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Nuevo Usuario
+                </button>
+            </div>
             <GenericTable
                 data={users}
                 columns={["id", "name", "email"]}
                 actions={[
-                    { name: "view", label: "👁️" },
+                    { name: "view", label: "View" },
+                    { name: "profile", label: "Profile" },
+                    { name: "address", label: "Address" },
+                    { name: "signature", label: "Signature" },
+                    { name: "devices", label: "Devices" },
+                    { name: "passwords", label: "Passwords" },
+                    { name: "sessions", label: "Sessions" },
                     { name: "edit", label: "Edit" },
                     { name: "delete", label: "Delete" },
-                    { name: "profile", label: "👤" },
-                    { name: "address", label: "📍" },
-                    { name: "signature", label: "✍️" },
-                    { name: "devices", label: "📱" },
-                    { name: "passwords", label: "🔑" },
-                    { name: "sessions", label: "🔒" },
                 ]}
                 onAction={handleAction}
             />

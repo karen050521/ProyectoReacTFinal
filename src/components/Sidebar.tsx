@@ -13,6 +13,12 @@ interface SidebarProps {
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const user = useSelector((state: RootState) => state.user.user);
+  const microsoftUser = useSelector((state: RootState) => state.microsoftAuth.user);
+  const isAuthenticated = useSelector((state: RootState) => state.microsoftAuth.isAuthenticated);
+  
+  // Usuario está autenticado si hay usuario tradicional o usuario de Microsoft
+  const hasUser = user || microsoftUser || isAuthenticated;
+  
   const location = useLocation();
   const { pathname } = location;
 
@@ -60,7 +66,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   }, [sidebarExpanded]);
 
   return (
-    <div> {user ?
+    <div> {hasUser ?
     <aside
       ref={sidebar}
       className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${

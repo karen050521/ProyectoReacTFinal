@@ -1,23 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMsal, useIsAuthenticated } from '@azure/msal-react';
+import { useSelector, useDispatch } from "react-redux";
+import { logout as logoutMicrosoft } from '../store/microsoftAuthSlice';
+import toast from 'react-hot-toast';
 
 import UserOne from '../images/user/user-01.png';
-import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 
 const DropdownUser = () => {
-  const user = useSelector((state: RootState) => state.user.user); // Obtener el valor de la variable del usuario
+  // Usuario del sistema tradicional
+  const user = useSelector((state: RootState) => state.user.user);
+  
+  // Usuario de Microsoft OAuth
+  const microsoftUser = useSelector((state: RootState) => state.microsoftAuth.user);
+  const microsoftPhoto = useSelector((state: RootState) => state.microsoftAuth.photo);
+  const isMicrosoftAuth = useIsAuthenticated();
+  
+  const { instance } = useMsal();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  // Priorizar usuario de Microsoft si está autenticado
+  const displayName = microsoftUser?.displayName || user?.name || "Invitado";
+  const userPhoto = microsoftPhoto || UserOne;
+  const userRole = microsoftUser?.jobTitle || "UX Designer";
 
-  // Función para cerrar sesión
-  const handleLogout = () => {
-    // Eliminar datos del localStorage
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    
-    // Refrescar la página para actualizar el estado
-    window.location.reload();
-  };
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
@@ -58,13 +67,17 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-          <h2>Bienvenido, {user?.name || "Invitado"}</h2>
+            Bienvenido, {displayName}
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs">{userRole}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
-          <img src={UserOne} alt="User" />
+        <span className="h-12 w-12 rounded-full overflow-hidden">
+          <img 
+            src={userPhoto} 
+            alt="User" 
+            className="h-full w-full object-cover"
+          />
         </span>
 
         <svg
@@ -169,7 +182,35 @@ const DropdownUser = () => {
           </li>
         </ul>
         <button 
-          onClick={handleLogout}
+          onClick={async () => {
+            if (isMicrosoftAuth) {
+              // Logout de Microsoft
+              try {
+                console.log('Cerrando sesión de Microsoft...');
+                
+                // Limpiar estado de Redux
+                dispatch(logoutMicrosoft());
+                
+                // Logout de Microsoft
+                await instance.logoutPopup({
+                  mainWindowRedirectUri: '/auth/signin'
+                });
+                
+                toast.success('Sesión cerrada exitosamente');
+                navigate('/auth/signin', { replace: true });
+              } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+                toast.error('Error al cerrar sesión');
+                // Redirigir de todos modos
+                navigate('/auth/signin', { replace: true });
+              }
+            } else {
+              // Logout tradicional
+              localStorage.removeItem('user');
+              toast.success('Sesión cerrada');
+              navigate('/auth/signin', { replace: true });
+            }
+          }}
           className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
         >
           <svg

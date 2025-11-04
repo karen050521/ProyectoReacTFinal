@@ -45,15 +45,16 @@ const App = () => {
         }
     };
     return (
-        <div>
-            {/* Formulario para crear un nuevo usuario */}
-            <h2>Create User</h2>
-                <Breadcrumb pageName="Crear Usuario" />
+        <>
+            <Breadcrumb pageName="Crear Usuario" />
+            <div className="p-6">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">Crear Nuevo Usuario</h2>
                 <UserFormValidator
                     handleCreate={handleCreateUser}
                     mode={1} // 1 significa creación
                 />
-        </div>
+            </div>
+        </>
     );
 };
 

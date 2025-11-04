@@ -2,11 +2,17 @@
 import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useMsal } from '@azure/msal-react';
+import { useDispatch } from 'react-redux';
+import { loginRequest } from '../../config/msalConfig';
+import { callMsGraph, getUserPhoto } from '../../services/microsoftGraphService';
+import { setAuthenticated, setUserData, setUserPhoto } from '../../store/microsoftAuthSlice';
 import SecurityService from '../../services/securityService';
 import Breadcrumb from "../../components/Breadcrumb";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress, Alert } from "@mui/material";
+import toast from 'react-hot-toast';
 
 
 const SignIn: React.FC = () => {
@@ -14,6 +20,8 @@ const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const { instance, accounts } = useMsal();
 
   // Redirect if already authenticated
   React.useEffect(() => {
@@ -53,6 +61,66 @@ const SignIn: React.FC = () => {
       setError(error.message || "Error al iniciar sesión con Google");
     } finally {
       setIsGoogleLoading(false);
+    }
+  };
+
+  const handleMicrosoftLogin = async () => {
+    try {
+      console.log('1. Iniciando login con Microsoft...');
+      
+      // Login con Microsoft
+      const loginResponse = await instance.loginPopup(loginRequest);
+      console.log('2. Login exitoso:', loginResponse);
+      
+      // Obtener token de acceso
+      const tokenResponse = await instance.acquireTokenSilent({
+        scopes: ['User.Read'],
+        account: loginResponse.account,
+      });
+      console.log('3. Token obtenido');
+
+      // Obtener datos del usuario desde Microsoft Graph
+      console.log('4. Obteniendo datos del usuario...');
+      const userData = await callMsGraph(tokenResponse.accessToken);
+      console.log('5. Datos del usuario obtenidos:', userData);
+      
+      // Guardar datos en Redux
+      dispatch(setAuthenticated(true));
+      dispatch(setUserData({
+        id: userData.id,
+        displayName: userData.displayName,
+        email: userData.mail,
+        givenName: userData.givenName,
+        surname: userData.surname,
+        userPrincipalName: userData.userPrincipalName,
+        jobTitle: userData.jobTitle,
+        officeLocation: userData.officeLocation,
+        mobilePhone: userData.mobilePhone,
+      }));
+      console.log('6. Datos guardados en Redux');
+
+      // Intentar obtener la foto del usuario
+      try {
+        const photo = await getUserPhoto(tokenResponse.accessToken);
+        if (photo) {
+          dispatch(setUserPhoto(photo));
+          console.log('7. Foto guardada');
+        }
+      } catch (photoError) {
+        console.warn('No se pudo obtener la foto del usuario:', photoError);
+      }
+
+      toast.success(`¡Bienvenido ${userData.displayName}!`);
+      console.log('8. Redirigiendo a /');
+      
+      // Pequeño delay para que el toast se vea
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 500);
+      
+    } catch (error) {
+      console.error('Error en el login con Microsoft:', error);
+      toast.error('Error al iniciar sesión con Microsoft');
     }
   };
   return (
@@ -312,6 +380,29 @@ const SignIn: React.FC = () => {
                         </span>
                       )}
                       {isGoogleLoading ? 'Signing in...' : 'Sign in with Google'}
+                    </button>
+
+                    {/* Botón de Microsoft OAuth */}
+                    <button 
+                      type="button"
+                      onClick={handleMicrosoftLogin}
+                      className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-[#9CA3AF] dark:border-[#5B5B60] bg-[#DDDCDB] dark:bg-[#2D3748] p-4 hover:bg-opacity-50 dark:hover:bg-opacity-50 text-[#1E3A8A] dark:text-[#F5F7FA]"
+                    >
+                      <span>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 21 21"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M10 0H0V10H10V0Z" fill="#F25022" />
+                          <path d="M21 0H11V10H21V0Z" fill="#7FBA00" />
+                          <path d="M10 11H0V21H10V11Z" fill="#00A4EF" />
+                          <path d="M21 11H11V21H21V11Z" fill="#FFB900" />
+                        </svg>
+                      </span>
+                      Sign in with Microsoft
                     </button>
 
                   </Form>

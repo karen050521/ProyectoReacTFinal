@@ -7,8 +7,19 @@ interface UserState {
 }
 
 const storedUser = localStorage.getItem("user");
+let parsedUser = null;
+if (storedUser) {
+    try {
+        const parsed = JSON.parse(storedUser);
+        // Si el objeto tiene la estructura {user: {...}, token: "..."}
+        parsedUser = parsed.user || parsed;
+    } catch (error) {
+        console.error("Error parsing user from localStorage:", error);
+    }
+}
+
 const initialState: UserState = {
-    user: storedUser ? JSON.parse(storedUser) : null,
+    user: parsedUser,
 };
 
 const userSlice = createSlice({
@@ -19,7 +30,12 @@ const userSlice = createSlice({
         setUser: (state, action: PayloadAction<AuthUser | null>) => {
             state.user = action.payload;
             if (action.payload) {
-                localStorage.setItem("user", JSON.stringify(action.payload));
+                // Mantener la estructura {user: {...}} para compatibilidad
+                const storedData = {
+                    user: action.payload,
+                    token: localStorage.getItem("session") || ""
+                };
+                localStorage.setItem("user", JSON.stringify(storedData));
             } else {
                 localStorage.removeItem("user");
             }
