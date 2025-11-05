@@ -4,8 +4,8 @@ import api from "../../interceptors/axiosInterceptor";
 import type { Address } from "../../models/Address";
 import { getUserById } from "../../services/userService";
 
-const defaultLat = 5.0703;
-const defaultLng = -75.5138;
+const defaultLat = 28.221;
+const defaultLng = -31.155;
 
 export default function AddressCreatePage(): JSX.Element {
   const { userId } = useParams<{ userId?: string }>();

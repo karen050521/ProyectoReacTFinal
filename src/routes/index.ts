@@ -57,18 +57,11 @@ const PermissionList = lazy(() => import('../pages/permission/list'));
 const PermissionCreate = lazy(() => import('../pages/permission/create'));
 const PermissionUpdate = lazy(() => import('../pages/permission/update'));
 
-// ====== Address ======
-// Address pages (OpenStreetMap)
+// Address (OpenStreetMap)
 const AddressList = lazy(() => import('../pages/Address/list'));
 const AddressView = lazy(() => import('../pages/Address/view'));
 const AddressEdit = lazy(() => import('../pages/Address/edit'));
 const AddressCreate = lazy(() => import('../pages/Address/create'));
-
-// Address pages (Material UI - CRUD Completo con mapas)
-const ListAddresses = lazy(() => import('../pages/Address/AddressPage'));
-const CreateAddress = lazy(() => import('../pages/Address/CreateAddressPage'));
-const UpdateAddress = lazy(() => import('../pages/Address/UpdateAddressPage'));
-const ViewAddress = lazy(() => import('../pages/Address/AddressViewPage'));
 
 // Microsoft OAuth
 const MicrosoftAuthPage = lazy(() => import('../pages/Authentication/MicrosoftAuthPage'));
@@ -204,12 +197,6 @@ const coreRoutes = [
   { path: '/addresses/create/:userId',
     title: 'Create Address',
     component: AddressCreate },
-
-  // Addresses (Material UI con mapas interactivos)
-  { path: '/addresses-material', title: 'Mi Dirección (Material)', component: ListAddresses },
-  { path: '/addresses-material/create', title: 'Crear Dirección', component: CreateAddress },
-  { path: '/addresses-material/update/:id', title: 'Editar Dirección', component: UpdateAddress },
-  { path: '/addresses-material/view/:id', title: 'Ver Dirección', component: ViewAddress },
 
   // Microsoft OAuth
   { path: '/auth/microsoft',
