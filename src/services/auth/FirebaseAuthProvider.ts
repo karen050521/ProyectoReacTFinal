@@ -4,6 +4,7 @@ import { AuthUser } from "../../models/auth";
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, User as FirebaseUser } from "firebase/auth";
 import { isFirebaseConfigured } from "../../config/firebase.config";
+import { UserStorageManager } from "../../utils/userStorageManager";
 
 export class FirebaseAuthProvider implements IAuthProvider {
   private config: IFirebaseConfig;
@@ -153,7 +154,8 @@ export class FirebaseAuthProvider implements IAuthProvider {
       provider: "google",
     };
 
-    localStorage.setItem("user", JSON.stringify(user));
+    // 🔥 USAR UserStorageManager EN LUGAR DE ESCRIBIR DIRECTAMENTE
+    UserStorageManager.saveUser(user);
 
     return {
       user,
@@ -204,7 +206,8 @@ export class FirebaseAuthProvider implements IAuthProvider {
     // DEBUG: Ver qué usuario final se está creando
     console.log("DEBUG AuthUser creado:", user);
 
-    localStorage.setItem("user", JSON.stringify(user));
+    // 🔥 USAR UserStorageManager EN LUGAR DE ESCRIBIR DIRECTAMENTE
+    UserStorageManager.saveUser(user);
 
     return {
       user,

@@ -46,7 +46,17 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
         
         // 1. Verificar si hay sesión del backend (login tradicional o Firebase integrado)
         const sessionToken = UserStorageManager.getSession();
-        const storedUser = UserStorageManager.getUser();
+        let storedUser = UserStorageManager.getUser();
+        
+        // 🔧 MANEJAR ESTRUCTURA ANIDADA LEGACY (por si queda algo)
+        if (storedUser && typeof storedUser === 'object' && 'user' in storedUser) {
+          console.log("⚠️ Detectada estructura anidada legacy, corrigiendo...");
+          storedUser = (storedUser as any).user;
+          // Re-guardar en formato correcto
+          if (storedUser) {
+            UserStorageManager.saveUser(storedUser, sessionToken || undefined);
+          }
+        }
         
         if (sessionToken && storedUser) {
           console.log("✅ Sesión del backend encontrada con token válido");
@@ -188,7 +198,17 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
       
       // 1. Verificar sesión del backend primero
       const sessionToken = UserStorageManager.getSession();
-      const storedUser = UserStorageManager.getUser();
+      let storedUser = UserStorageManager.getUser();
+      
+      // 🔧 MANEJAR ESTRUCTURA ANIDADA LEGACY (por si queda algo)
+      if (storedUser && typeof storedUser === 'object' && 'user' in storedUser) {
+        console.log("⚠️ Detectada estructura anidada legacy en refresh, corrigiendo...");
+        storedUser = (storedUser as any).user;
+        // Re-guardar en formato correcto
+        if (storedUser) {
+          UserStorageManager.saveUser(storedUser, sessionToken || undefined);
+        }
+      }
       
       if (sessionToken && storedUser) {
         console.log("🔄 Refrescando sesión del backend");
@@ -196,7 +216,7 @@ export const AuthProvider: React.FC<Props> = ({ children, authProvider }) => {
         const authUser: AuthUser = {
           ...storedUser,
           token: sessionToken,
-          provider: 'local' as const
+          provider: storedUser.provider || 'local' as const
         };
         setCurrentUser(authUser);
         dispatch(setUser(storedUser));

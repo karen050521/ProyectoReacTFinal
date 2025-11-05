@@ -8,7 +8,11 @@ export interface AuthUser extends User {
   token: string;
   refreshToken?: string;
   tokenExpiration?: string;
-  provider?: 'google' | 'facebook' | 'local';
+  provider?: 'google' | 'facebook' | 'local' | 'microsoft';
+  //  PROPIEDADES ADICIONALES PARA OAUTH
+  displayName?: string;    // Para Firebase y Microsoft
+  photoURL?: string;       // Para Firebase y Microsoft
+  firebase_uid?: string;   // Para Firebase
 }
 
 // Estado de autenticación para el store
