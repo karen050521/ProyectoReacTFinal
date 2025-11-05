@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Tooltip } from '@material-tailwind/react';
 
 interface Action {
@@ -26,7 +25,7 @@ const GenericTable = <T extends Record<string, any>>({
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-[#9CA3AF] dark:divide-[#5B5B60]">
-        <thead className="bg-[#9CA3AF] dark:bg-[#0A1628]">
+        <thead className="bg-[#9CA3AF] dark:bg-[#1E3A5A]">
           <tr>
             {columns.map((col) => (
               <th
@@ -45,9 +44,9 @@ const GenericTable = <T extends Record<string, any>>({
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-[#9CA3AF] dark:bg-[#1E3A5A] dark:divide-[#5B5B60]">
+        <tbody className="bg-[#F9FAFB] divide-y divide-[#9CA3AF] dark:bg-[#0A1628] dark:divide-[#5B5B60]">
           {data.map((item, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-[#F9FAFB] dark:hover:bg-[#2D3748]">
+            <tr key={rowIndex} className="hover:bg-[#DDDCDB] dark:hover:bg-[#1E3A5A]">
               {columns.map((col) => (
                 <td
                   key={col}
@@ -67,20 +66,14 @@ const GenericTable = <T extends Record<string, any>>({
                       <span className="inline-block">
                         <Button
                           size="sm"
-                          color={action.name === 'edit' ? 'blue' : action.name === 'delete' ? 'blue' : 'green'}
+                          color={action.name === 'delete' ? 'red' : action.name === 'permissions' ? 'green' : 'blue-gray'}
                           onClick={() => handleAction(action.name, item)}
-                          className={`!px-2 !py-1 ${
-                            action.name === 'edit' 
-                              ? '!bg-[#9CA3AF] !border-[#9CA3AF] hover:!bg-[#6B7280] dark:!bg-[#1E40AF] dark:!border-[#1E40AF] dark:hover:!bg-[#2563EB]' 
-                              : action.name === 'delete'
-                              ? '!bg-[#9CA3AF] !border-[#9CA3AF] hover:!bg-[#6B7280] dark:!bg-[#1E40AF] dark:!border-[#1E40AF] dark:hover:!bg-[#2563EB]'
-                              : ''
-                          }`}
+                          className={`!px-2 !py-1 ${action.name === 'edit' ? '!bg-gray-400 hover:!bg-gray-500' : action.name === 'permissions' ? '!bg-green-500 hover:!bg-green-600' : ''}`}
                           {...({} as any)}
                         >
                           {action.name === 'edit' ? (
                             <svg
-                            color='white'
+                              color='black'
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
                               height="24"
@@ -98,7 +91,7 @@ const GenericTable = <T extends Record<string, any>>({
                             </svg>
                           ) : action.name === 'delete' ? (
                             <svg
-                            color='#DC2626'
+                              color='red'
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
                               height="24"
@@ -113,6 +106,23 @@ const GenericTable = <T extends Record<string, any>>({
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
                               <path d="M3 6h18" />
                               <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                          ) : action.name === 'permissions' ? (
+                            <svg
+                              color='green'
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="lucide lucide-shield-check"
+                            >
+                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                              <path d="m9 12 2 2 4-4" />
                             </svg>
                           ) : (
                             <span className="text-[#1E3A8A] font-semibold dark:text-[#F5F7FA]">{action.label}</span>

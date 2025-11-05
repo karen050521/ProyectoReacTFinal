@@ -1,17 +1,11 @@
-import axios from "axios";
+import { api } from "../interceptors/axiosInterceptor";
 import type { RolePermission } from "../models/RolePermission";
-
-const RAW_API_BASE_RP: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
-const API_BASE_RP = RAW_API_BASE_RP ? RAW_API_BASE_RP.replace(/\/$/, '') : '';
-const API_URL = API_BASE_RP ? `${API_BASE_RP}/role-permissions` : '/role-permissions';
 
 class RolePermissionService {
     // GET /api/role-permissions → listar relaciones rol-permiso
     async getRolePermissions(): Promise<RolePermission[]> {
         try {
-            console.debug('RolePermissionService.getRolePermissions -> API_URL=', API_URL);
-            const response = await axios.get<RolePermission[]>(API_URL);
-            console.debug('RolePermissionService.getRolePermissions -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
+            const response = await api.get<RolePermission[]>('/role-permissions');
             return response.data;
         } catch (error) {
             console.error("Error al obtener relaciones rol-permiso:", error);
@@ -22,7 +16,7 @@ class RolePermissionService {
     // GET /api/role-permissions/{id} → obtener relación
     async getRolePermissionById(id: string): Promise<RolePermission | null> {
         try {
-            const response = await axios.get<RolePermission>(`${API_URL}/${id}`);
+            const response = await api.get<RolePermission>(`/role-permissions/${id}`);
             return response.data;
         } catch (error) {
             console.error("Relación rol-permiso no encontrada:", error);
@@ -30,10 +24,29 @@ class RolePermissionService {
         }
     }
 
+    // GET /api/role-permissions/role/{roleId} → obtener permisos de un rol
+    async getPermissionsByRoleId(roleId: number): Promise<RolePermission[]> {
+        try {
+            const response = await api.get<RolePermission[]>(`/role-permissions/role/${roleId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error al obtener permisos del rol:", error);
+            return [];
+        }
+    }
+
     // POST /api/role-permissions/role/{roleId}/permission/{permissionId} → asignar permiso a rol
     async assignPermissionToRole(roleId: number, permissionId: number): Promise<RolePermission | null> {
         try {
-            const response = await axios.post<RolePermission>(`${API_URL}/role/${roleId}/permission/${permissionId}`);
+            const response = await api.post<RolePermission>(
+                `/role-permissions/role/${roleId}/permission/${permissionId}`,
+                {},
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
             return response.data;
         } catch (error) {
             console.error("Error al asignar permiso a rol:", error);
@@ -44,7 +57,14 @@ class RolePermissionService {
     // DELETE /api/role-permissions/role/{roleId}/permission/{permissionId} → eliminar asignación
     async removePermissionFromRole(roleId: number, permissionId: number): Promise<boolean> {
         try {
-            await axios.delete(`${API_URL}/role/${roleId}/permission/${permissionId}`);
+            await api.delete(
+                `/role-permissions/role/${roleId}/permission/${permissionId}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
             return true;
         } catch (error) {
             console.error("Error al eliminar asignación rol-permiso:", error);
@@ -55,7 +75,7 @@ class RolePermissionService {
     // CRUD básico genérico
     async createRolePermission(rolePermission: Omit<RolePermission, "id">): Promise<RolePermission | null> {
         try {
-            const response = await axios.post<RolePermission>(API_URL, rolePermission);
+            const response = await api.post<RolePermission>('/role-permissions', rolePermission);
             return response.data;
         } catch (error) {
             console.error("Error al crear relación rol-permiso:", error);
@@ -65,7 +85,7 @@ class RolePermissionService {
 
     async updateRolePermission(id: string, rolePermission: Partial<RolePermission>): Promise<RolePermission | null> {
         try {
-            const response = await axios.put<RolePermission>(`${API_URL}/${id}`, rolePermission);
+            const response = await api.put<RolePermission>(`/role-permissions/${id}`, rolePermission);
             return response.data;
         } catch (error) {
             console.error("Error al actualizar relación rol-permiso:", error);
@@ -75,7 +95,7 @@ class RolePermissionService {
 
     async deleteRolePermission(id: string): Promise<boolean> {
         try {
-            await axios.delete(`${API_URL}/${id}`);
+            await api.delete(`/role-permissions/${id}`);
             return true;
         } catch (error) {
             console.error("Error al eliminar relación rol-permiso:", error);
@@ -90,6 +110,7 @@ export const rolePermissionService = new RolePermissionService();
 // Named exports para compatibilidad con imports existentes
 export const getRolePermissions = () => rolePermissionService.getRolePermissions();
 export const getRolePermissionById = (id: string) => rolePermissionService.getRolePermissionById(id);
+export const getPermissionsByRoleId = (roleId: number) => rolePermissionService.getPermissionsByRoleId(roleId);
 export const assignPermissionToRole = (roleId: number, permissionId: number) => rolePermissionService.assignPermissionToRole(roleId, permissionId);
 export const removePermissionFromRole = (roleId: number, permissionId: number) => rolePermissionService.removePermissionFromRole(roleId, permissionId);
 export const createRolePermission = (rolePermission: Omit<RolePermission, "id">) => rolePermissionService.createRolePermission(rolePermission);

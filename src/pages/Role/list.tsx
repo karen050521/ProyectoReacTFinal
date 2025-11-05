@@ -28,6 +28,9 @@ const ListRoles: React.FC = () => {
         if (action === "edit") {
             console.log("Edit role:", item);
             navigate(`/roles/update/${item.id}`);
+        } else if (action === "permissions") {
+            console.log("Manage permissions for role:", item);
+            navigate(`/role-permissions/manage/${item.id}`);
         } else if (action === "delete") {
             console.log("Delete role :", item);
             Swal.fire({
@@ -64,6 +67,7 @@ const ListRoles: React.FC = () => {
                 columns={["id", "name", "description"]}
                 actions={[
                     { name: "edit", label: "Edit" },
+                    { name: "permissions", label: "Permissions" },
                     { name: "delete", label: "Delete" },
                 ]}
                 onAction={handleAction}

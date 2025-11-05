@@ -1,80 +1,66 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getProfileByUserId, createProfileByUserId, updateProfile } from "../../services/profileService";
+import { getProfileByUserId } from "../../services/profileService";
 import { getUserById } from "../../services/userService";
 import { Profile } from "../../models/Profile";
 import { User } from "../../models/user";
 import Breadcrumb from "../../components/Breadcrumb";
-import Swal from "sweetalert2";
 import {
-  TextField,
   Button,
   Box,
   Typography,
   Paper,
   Stack,
 } from "@mui/material";
-import { ArrowBack as ArrowBackIcon, Upload as UploadIcon } from "@mui/icons-material";
+import { ArrowBack as ArrowBackIcon, Edit as EditIcon } from "@mui/icons-material";
 
 type UIMode = "tailwind" | "material";
 
-const UserProfilePage = () => {
+const ViewProfilePage = () => {
     const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
     const [uiMode, setUiMode] = useState<UIMode>("tailwind");
     const [profile, setProfile] = useState<Profile | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const [phone, setPhone] = useState("");
-    const [photo, setPhoto] = useState("");
-    const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string>("");
 
-    // Función para construir la URL completa de la imagen
+    // Helper para construir URL completa de imagen
     const getImageUrl = (photoPath: string | null | undefined): string => {
         if (!photoPath) return "";
-        
-        // Si ya es una URL completa, devolverla
         if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) {
             return photoPath;
         }
-        
-        // Si es un path relativo, construir la URL completa
         const API_BASE = (import.meta as any).env.VITE_API_URL || "http://127.0.0.1:5000";
-        const baseUrl = API_BASE.replace(/\/$/, ''); // Eliminar slash final si existe
-        
-        // Asegurarse de que el path comience con /
+        const baseUrl = API_BASE.replace(/\/$/, '');
         const path = photoPath.startsWith('/') ? photoPath : `/${photoPath}`;
-        
         return `${baseUrl}${path}`;
     };
 
     useEffect(() => {
         const fetchData = async () => {
             if (!userId) return;
+
+            setLoading(true);
             try {
-                setLoading(true);
                 const numericUserId = Number.parseInt(userId);
                 
                 // Obtener usuario
                 const userData = await getUserById(numericUserId);
                 setUser(userData);
 
-                // Obtener perfil del usuario
+                // Obtener perfil
                 const profileData = await getProfileByUserId(numericUserId);
-                console.log("Profile data received:", profileData);
-                
                 if (profileData) {
                     setProfile(profileData);
-                    setPhone(profileData.phone || "");
-                    setPhoto(profileData.photo || "");
-                    // Construir URL completa para la imagen
-                    const imageUrl = getImageUrl(profileData.photo);
-                    console.log("Image URL:", imageUrl);
-                    setPhotoPreview(imageUrl);
+                    if (profileData.photo) {
+                        const imageUrl = getImageUrl(profileData.photo);
+                        console.log("Image URL:", imageUrl);
+                        setPhotoPreview(imageUrl);
+                    }
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error loading profile:", error);
             } finally {
                 setLoading(false);
             }
@@ -83,84 +69,12 @@ const UserProfilePage = () => {
         fetchData();
     }, [userId]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setPhotoFile(file);
-            // Crear preview de la imagen
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPhotoPreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleSave = async () => {
-        if (!userId) return;
-
-        try {
-            const profileData = {
-                user_id: Number.parseInt(userId),
-                phone: phone || null,
-                photo: photo || null,
-            };
-
-            if (profile?.id) {
-                // Actualizar perfil existente usando /profiles/:id (PUT)
-                const updated = await updateProfile(profile.id, profileData, photoFile || undefined);
-                if (updated) {
-                    Swal.fire({
-                        title: "Éxito",
-                        text: "Perfil actualizado correctamente",
-                        icon: "success",
-                        timer: 2000
-                    });
-                    setProfile(updated);
-                    setPhotoFile(null);
-                    if (updated.photo) {
-                        setPhotoPreview(getImageUrl(updated.photo));
-                    }
-                }
-            } else {
-                // Crear nuevo perfil usando el endpoint correcto /profiles/user/:userId
-                const numericUserId = Number.parseInt(userId);
-                const profileDataWithoutUserId = {
-                    phone: phone || null,
-                    photo: photo || null,
-                };
-                const created = await createProfileByUserId(numericUserId, profileDataWithoutUserId, photoFile || undefined);
-                if (created) {
-                    Swal.fire({
-                        title: "Éxito",
-                        text: "Perfil creado correctamente",
-                        icon: "success",
-                        timer: 2000
-                    });
-                    setProfile(created);
-                    setPhotoFile(null);
-                    if (created.photo) {
-                        setPhotoPreview(created.photo);
-                    }
-                }
-            }
-        } catch (error) {
-            console.error("Error saving profile:", error);
-            Swal.fire({
-                title: "Error",
-                text: "No se pudo guardar el perfil",
-                icon: "error",
-                timer: 2000
-            });
-        }
+    const handleEdit = () => {
+        navigate(`/profile/edit/${userId}`);
     };
 
     if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="h-16 w-16 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
-            </div>
-        );
+        return <div className="text-center py-10">Loading...</div>;
     }
 
     // ============ RENDER TAILWIND ============
@@ -185,71 +99,52 @@ const UserProfilePage = () => {
                 <div className="p-6.5">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Columna izquierda: Foto de perfil */}
-                        <div className="lg:col-span-1 flex flex-col items-center">
-                            <div className="mb-4 w-48 h-48 rounded-lg overflow-hidden border-2 border-stroke dark:border-strokedark bg-gray-100 dark:bg-meta-4">
-                                {photoPreview ? (
-                                    <img 
-                                        src={photoPreview} 
-                                        alt="Profile" 
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            console.error("Error loading image:", photoPreview);
-                                            e.currentTarget.src = "https://via.placeholder.com/200?text=No+Image";
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                        Sin imagen
-                                    </div>
-                                )}
-                            </div>
-
-                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-primary py-2 px-4 text-white hover:bg-opacity-90">
-                                <UploadIcon fontSize="small" />
-                                <span>Subir Foto</span>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    className="hidden"
+                        <div className="flex flex-col items-center">
+                            <div 
+                                className="w-[200px] h-[200px] border-2 border-stroke rounded-lg overflow-hidden mb-4 bg-gray-100 flex items-center justify-center"
+                            >
+                                <img
+                                    src={photoPreview || "/images/user/user-default.png"}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        console.log("Error loading image, using fallback");
+                                        (e.target as HTMLImageElement).src = "/images/user/user-default.png";
+                                    }}
                                 />
-                            </label>
+                            </div>
                         </div>
 
                         {/* Columna derecha: Información del perfil */}
                         <div className="lg:col-span-2">
                             <div className="mb-6">
-                                <label className="mb-2.5 block text-sm font-medium text-black dark:text-white">
+                                <p className="mb-2.5 text-sm font-medium text-black dark:text-white">
                                     Name: <span className="font-bold">{user?.name || "N/A"}</span>
-                                </label>
+                                </p>
                             </div>
 
                             <div className="mb-6">
-                                <label className="mb-2.5 block text-sm font-medium text-black dark:text-white">
+                                <p className="mb-2.5 text-sm font-medium text-black dark:text-white">
                                     Email: <span className="font-normal">{user?.email || "N/A"}</span>
-                                </label>
+                                </p>
                             </div>
 
-                            <div>
-                                <label htmlFor="phone" className="mb-2.5 block text-sm font-medium text-black dark:text-white">
+                            <div className="mb-6">
+                                <p className="mb-2.5 text-sm font-medium text-black dark:text-white">
                                     Phone:
-                                </label>
-                                <input
-                                    id="phone"
-                                    type="text"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="+47 300 111 23 33"
-                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                />
+                                </p>
+                                <div className="w-full rounded-lg border-[1.5px] border-stroke bg-gray-100 px-5 py-3 text-black dark:bg-meta-4 dark:text-white">
+                                    {profile?.phone || "No phone number"}
+                                </div>
                             </div>
 
                             <div className="flex gap-4 mt-8">
                                 <button
-                                    onClick={handleSave}
+                                    onClick={handleEdit}
                                     className="flex justify-center rounded bg-primary py-3 px-6 font-medium text-gray hover:bg-opacity-90"
                                 >
-                                    {profile ? "Update" : "Create"}
+                                    <EditIcon className="mr-2" fontSize="small" />
+                                    Actualizar
                                 </button>
                             </div>
                         </div>
@@ -309,20 +204,6 @@ const UserProfilePage = () => {
                                 </Box>
                             )}
                         </Box>
-
-                        <Button
-                            variant="contained"
-                            component="label"
-                            startIcon={<UploadIcon />}
-                        >
-                            Subir Foto{" "}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                hidden
-                                onChange={handleFileChange}
-                            />
-                        </Button>
                     </Stack>
 
                     {/* Columna derecha: Información del perfil */}
@@ -339,21 +220,19 @@ const UserProfilePage = () => {
                             </Typography>
                         </Box>
 
-                        <TextField
-                            fullWidth
-                            label="Phone"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="+47 300 111 23 33"
-                            sx={{ mb: 3 }}
-                        />
+                        <Box mb={3}>
+                            <Typography variant="body1" gutterBottom>
+                                <strong>Phone:</strong> {profile?.phone || "No phone number"}
+                            </Typography>
+                        </Box>
 
                         <Button
                             variant="contained"
-                            onClick={handleSave}
+                            startIcon={<EditIcon />}
+                            onClick={handleEdit}
                             size="large"
                         >
-                            {profile ? "Update" : "Create"}
+                            Actualizar
                         </Button>
                     </Box>
                 </Box>
@@ -367,17 +246,17 @@ const UserProfilePage = () => {
             <div className="mb-6 flex justify-end gap-3">
                 <button
                     onClick={() => setUiMode("tailwind")}
-                    className={`rounded-md py-2 px-4 font-medium transition-colors ${
+                    className={`rounded px-4 py-2 font-medium transition-colors ${
                         uiMode === "tailwind"
                             ? "bg-primary text-white"
                             : "bg-gray-200 text-black hover:bg-gray-300 dark:bg-meta-4 dark:text-white"
                     }`}
                 >
-                    Tailwind CSS
+                    Tailwind
                 </button>
                 <button
                     onClick={() => setUiMode("material")}
-                    className={`rounded-md py-2 px-4 font-medium transition-colors ${
+                    className={`rounded px-4 py-2 font-medium transition-colors ${
                         uiMode === "material"
                             ? "bg-primary text-white"
                             : "bg-gray-200 text-black hover:bg-gray-300 dark:bg-meta-4 dark:text-white"
@@ -387,10 +266,10 @@ const UserProfilePage = () => {
                 </button>
             </div>
 
-            {/* Render según modo seleccionado */}
+            {/* Renderizado condicional */}
             {uiMode === "tailwind" ? renderTailwind() : renderMaterialUI()}
         </div>
     );
 };
 
-export default UserProfilePage;
+export default ViewProfilePage;
