@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProfileByUserId, createProfile, updateProfile } from "../../services/profileService";
+import { getProfileByUserId, createProfileByUserId, updateProfileByUserId } from "../../services/profileService";
 import { getUserById } from "../../services/userService";
 import { Profile } from "../../models/Profile";
 import { User } from "../../models/user";
@@ -15,13 +15,15 @@ const UserProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [phone, setPhone] = useState("");
     const [photo, setPhoto] = useState("");
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string>("");
 
     useEffect(() => {
         const fetchData = async () => {
             if (!userId) return;
             try {
                 setLoading(true);
-                const numericUserId = parseInt(userId);
+                const numericUserId = Number.parseInt(userId);
                 
                 // Obtener usuario
                 const userData = await getUserById(numericUserId);
@@ -35,6 +37,7 @@ const UserProfilePage = () => {
                     setProfile(profileData);
                     setPhone(profileData.phone || "");
                     setPhoto(profileData.photo || "");
+                    setPhotoPreview(profileData.photo || "");
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -46,19 +49,33 @@ const UserProfilePage = () => {
         fetchData();
     }, [userId]);
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setPhotoFile(file);
+            // Crear preview de la imagen
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPhotoPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSave = async () => {
         if (!userId) return;
 
         try {
             const profileData = {
-                user_id: parseInt(userId),
+                user_id: Number.parseInt(userId),
                 phone: phone || null,
                 photo: photo || null,
             };
 
             if (profile?.id) {
-                // Actualizar perfil existente
-                const updated = await updateProfile(profile.id, profileData);
+                // Actualizar perfil existente usando /profiles/user/:userId
+                const numericUserId = Number.parseInt(userId);
+                const updated = await updateProfileByUserId(numericUserId, profileData, photoFile || undefined);
                 if (updated) {
                     Swal.fire({
                         title: "Éxito",
@@ -67,10 +84,19 @@ const UserProfilePage = () => {
                         timer: 2000
                     });
                     setProfile(updated);
+                    setPhotoFile(null);
+                    if (updated.photo) {
+                        setPhotoPreview(updated.photo);
+                    }
                 }
             } else {
-                // Crear nuevo perfil
-                const created = await createProfile(profileData);
+                // Crear nuevo perfil usando el endpoint correcto /profiles/user/:userId
+                const numericUserId = Number.parseInt(userId);
+                const profileDataWithoutUserId = {
+                    phone: phone || null,
+                    photo: photo || null,
+                };
+                const created = await createProfileByUserId(numericUserId, profileDataWithoutUserId, photoFile || undefined);
                 if (created) {
                     Swal.fire({
                         title: "Éxito",
@@ -79,9 +105,14 @@ const UserProfilePage = () => {
                         timer: 2000
                     });
                     setProfile(created);
+                    setPhotoFile(null);
+                    if (created.photo) {
+                        setPhotoPreview(created.photo);
+                    }
                 }
             }
         } catch (error) {
+            console.error("Error saving profile:", error);
             Swal.fire({
                 title: "Error",
                 text: "No se pudo guardar el perfil",
@@ -143,7 +174,7 @@ const UserProfilePage = () => {
 
                     <div>
                         <label htmlFor="photo" className="block text-lg font-medium text-gray-700 mb-2">
-                            URL de Foto
+                            URL de Foto (Opcional)
                         </label>
                         <input
                             id="photo"
@@ -153,15 +184,34 @@ const UserProfilePage = () => {
                             className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Ingrese la URL de la foto"
                         />
+                        <p className="text-sm text-gray-500 mt-1">
+                            O sube un archivo de imagen abajo
+                        </p>
                     </div>
 
-                    {photo && (
+                    <div>
+                        <label htmlFor="photoFile" className="block text-lg font-medium text-gray-700 mb-2">
+                            Subir Foto
+                        </label>
+                        <input
+                            id="photoFile"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <p className="text-sm text-gray-500 mt-1">
+                            Formatos permitidos: JPG, PNG, GIF (máx. 5MB)
+                        </p>
+                    </div>
+
+                    {photoPreview && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <span className="block text-sm font-medium text-gray-700 mb-2">
                                 Vista previa de la foto
-                            </label>
+                            </span>
                             <img 
-                                src={photo} 
+                                src={photoPreview} 
                                 alt="Preview" 
                                 className="w-32 h-32 object-cover rounded-full border-2 border-gray-300"
                                 onError={(e) => {

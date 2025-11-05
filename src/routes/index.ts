@@ -57,8 +57,8 @@ const PermissionList = lazy(() => import('../pages/permission/list'));
 const PermissionCreate = lazy(() => import('../pages/permission/create'));
 const PermissionUpdate = lazy(() => import('../pages/permission/update'));
 
-// Address
-const AddressList = lazy(() => import('../pages/Address/AddressPage'));
+// Address (OpenStreetMap)
+const AddressList = lazy(() => import('../pages/Address/list'));
 const AddressView = lazy(() => import('../pages/Address/view'));
 const AddressEdit = lazy(() => import('../pages/Address/edit'));
 const AddressCreate = lazy(() => import('../pages/Address/create'));
@@ -181,20 +181,20 @@ const coreRoutes = [
     title: 'Update Permission', 
     component: PermissionUpdate },
 
-  // Address
-  { path: '/addresses', 
-    title: 'Addresses', 
+  // Address (OpenStreetMap Integration)
+  { path: '/addresses',
+    title: 'Addresses',
     component: AddressList },
 
   { path: '/addresses/user/:userId',
-    title: 'Address View',
+    title: 'View Address',
     component: AddressView },
 
   { path: '/addresses/edit/:userId',
     title: 'Edit Address',
     component: AddressEdit },
 
-  { path: '/addresses/create',
+  { path: '/addresses/create/:userId',
     title: 'Create Address',
     component: AddressCreate },
 
