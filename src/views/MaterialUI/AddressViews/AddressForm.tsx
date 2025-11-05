@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -12,12 +12,14 @@ import {
   CircularProgress,
   Breadcrumbs,
   Link,
+  Paper,
 } from "@mui/material";
 import {
   Save as SaveIcon,
   Cancel as CancelIcon,
   Home as HomeIcon,
   LocationOn as LocationIcon,
+  Map as MapIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
@@ -27,6 +29,10 @@ import { useAddressController } from "../../../controllers/useAddressController"
 interface AddressFormProps {
   mode: 'create' | 'edit';
 }
+
+// Coordenadas por defecto (Puedes cambiarlas por las de tu ubicación preferida)
+const defaultLat = 28.221;
+const defaultLng = -31.155;
 
 const AddressForm: React.FC<AddressFormProps> = ({ mode }) => {
   const navigate = useNavigate();
@@ -39,6 +45,14 @@ const AddressForm: React.FC<AddressFormProps> = ({ mode }) => {
     message: string;
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
+
+  // Ref para el iframe del mapa
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  // Función para generar URL del mapa de OpenStreetMap
+  const getMapUrl = (lat: number, lng: number) => {
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}`;
+  };
 
   const validationSchema = Yup.object({
     street: Yup.string()
@@ -111,6 +125,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ mode }) => {
       }
     },
   });
+
+  // Obtener las coordenadas actuales para el mapa
+  const getCurrentMapCoordinates = () => {
+    const lat = formik.values.latitude === "" ? defaultLat : Number(formik.values.latitude);
+    const lng = formik.values.longitude === "" ? defaultLng : Number(formik.values.longitude);
+    return { lat, lng };
+  };
 
   // Cargar datos de la dirección si estamos en modo edición
   useEffect(() => {
@@ -212,6 +233,69 @@ const AddressForm: React.FC<AddressFormProps> = ({ mode }) => {
           {/* Formulario */}
           <Box component="form" onSubmit={formik.handleSubmit}>
             <Grid container spacing={3}>
+              {/* Sección del Mapa */}
+              <Grid size={{ xs: 12 }}>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <MapIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6" component="h3">
+                    Ubicación en el Mapa
+                  </Typography>
+                </Box>
+                
+                <Paper 
+                  elevation={2} 
+                  sx={{ 
+                    p: 2, 
+                    mb: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 2
+                  }}
+                >
+                  {/* Información de coordenadas actuales */}
+                  <Box mb={2}>
+                    <Typography variant="body2" color="text.secondary">
+                      Coordenadas actuales: Lat: {formik.values.latitude || defaultLat}, Lng: {formik.values.longitude || defaultLng}
+                    </Typography>
+                  </Box>
+                  
+                  {/* Iframe del mapa */}
+                  <Box 
+                    sx={{ 
+                      width: '100%', 
+                      height: 400, 
+                      border: '1px solid #ddd', 
+                      borderRadius: 1,
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <iframe
+                      key={`map-${formik.values.latitude || defaultLat}-${formik.values.longitude || defaultLng}-${mode}-${id || 'new'}`}
+                      ref={iframeRef}
+                      src={getMapUrl(
+                        formik.values.latitude === "" ? defaultLat : Number(formik.values.latitude),
+                        formik.values.longitude === "" ? defaultLng : Number(formik.values.longitude)
+                      )}
+                      title="OpenStreetMap"
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        border: 'none',
+                        borderRadius: '4px'
+                      }}
+                      loading="eager"
+                    />
+                  </Box>
+                  
+                  <Alert severity="info" sx={{ mt: 2 }}>
+                    <Typography variant="body2">
+                      💡 <strong>Tip:</strong> Cambia las coordenadas de latitud y longitud en los campos de abajo para actualizar la ubicación en el mapa.
+                      El mapa se actualizará automáticamente.
+                    </Typography>
+                  </Alert>
+                </Paper>
+              </Grid>
+
               {/* Calle */}
               <Grid size={{ xs: 12, md: 8 }}>
                 <TextField
@@ -254,10 +338,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ mode }) => {
                   type="number"
                   inputProps={{ step: "any" }}
                   value={formik.values.latitude}
-                  onChange={formik.handleChange}
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    // El mapa se actualizará automáticamente debido a la key dinámica
+                  }}
                   onBlur={formik.handleBlur}
                   error={formik.touched.latitude && Boolean(formik.errors.latitude)}
-                  helperText={formik.touched.latitude && formik.errors.latitude || "Ejemplo: -34.6118"}
+                  helperText={formik.touched.latitude && formik.errors.latitude || "Ejemplo: -34.6118 (Entre -90 y 90)"}
                 />
               </Grid>
 
@@ -271,10 +358,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ mode }) => {
                   type="number"
                   inputProps={{ step: "any" }}
                   value={formik.values.longitude}
-                  onChange={formik.handleChange}
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    // El mapa se actualizará automáticamente debido a la key dinámica
+                  }}
                   onBlur={formik.handleBlur}
                   error={formik.touched.longitude && Boolean(formik.errors.longitude)}
-                  helperText={formik.touched.longitude && formik.errors.longitude || "Ejemplo: -58.3960"}
+                  helperText={formik.touched.longitude && formik.errors.longitude || "Ejemplo: -58.3960 (Entre -180 y 180)"}
                 />
               </Grid>
 
@@ -284,6 +374,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ mode }) => {
                   <Typography variant="body2">
                     <strong>Nota:</strong> Las coordenadas de latitud y longitud son opcionales. 
                     Si las proporcionas, asegúrate de que sean válidas para una mejor geolocalización.
+                    El mapa de arriba te ayuda a visualizar la ubicación en tiempo real.
                   </Typography>
                 </Alert>
               </Grid>

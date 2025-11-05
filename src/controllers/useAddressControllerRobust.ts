@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { addressService } from "../services/addressService";
 import { Address } from "../models/Address";
 import api from "../interceptors/axiosInterceptor";
 
-export const useAddressController = () => {
-  const { currentUser } = useAuth(); // Usar AuthContext en lugar de localStorage
+export const useAddressControllerRobust = () => {
+  const { currentUser, email, sources } = useCurrentUser();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Función para buscar usuario por email (igual que en create.tsx y list.tsx)
+  // Función para buscar usuario por email
   const findUserByEmail = async (email: string) => {
     try {
       const response = await api.get('/users');
@@ -26,21 +26,21 @@ export const useAddressController = () => {
     setLoading(true);
     setError(null);
     try {
-      // Usar AuthContext en lugar de localStorage
-      if (!currentUser || !currentUser.email) {
+      if (!email) {
         console.error("No hay usuario autenticado");
+        console.log("Fuentes de datos disponibles:", sources);
         setAddresses([]);
         setLoading(false);
         return;
       }
 
-      console.log("Usuario autenticado:", currentUser);
+      console.log("Usuario autenticado:", { email, sources });
       
       // Buscar usuario en backend por email
-      const backendUser = await findUserByEmail(currentUser.email);
+      const backendUser = await findUserByEmail(email);
       
       if (!backendUser || !backendUser.id) {
-        console.error("No se encontró usuario en backend con email:", currentUser.email);
+        console.error("No se encontró usuario en backend con email:", email);
         setAddresses([]);
         setLoading(false);
         return;
@@ -53,7 +53,7 @@ export const useAddressController = () => {
       
       if (userAddress) {
         console.log("Dirección encontrada:", userAddress);
-        setAddresses([userAddress]); // Array con una sola dirección
+        setAddresses([userAddress]);
       } else {
         console.log("Usuario no tiene dirección registrada");
         setAddresses([]);
@@ -69,13 +69,12 @@ export const useAddressController = () => {
 
   const createAddress = async (address: Omit<Address, "id" | "user_id">) => {
     try {
-      // Usar AuthContext en lugar de localStorage
-      if (!currentUser || !currentUser.email) {
+      if (!email) {
         throw new Error("No se pudo obtener el usuario autenticado o no tiene email");
       }
 
       // Buscar usuario en backend por email
-      const backendUser = await findUserByEmail(currentUser.email);
+      const backendUser = await findUserByEmail(email);
       
       if (!backendUser || !backendUser.id) {
         throw new Error("No se encontró un usuario en el backend con tu email");
@@ -88,7 +87,6 @@ export const useAddressController = () => {
           throw new Error("Ya tienes una dirección registrada. Cada usuario solo puede tener una dirección.");
         }
       } catch (existingError: any) {
-        // Si es 404, significa que no tiene dirección (OK para crear)
         if (existingError.response?.status !== 404) {
           console.error("Error verificando dirección existente:", existingError);
         }
@@ -96,7 +94,7 @@ export const useAddressController = () => {
 
       const newAddress = await addressService.createAddress(Number(backendUser.id), address);
       if (newAddress) {
-        await fetchUserAddress(); // Recargar direcciones
+        await fetchUserAddress();
         return newAddress;
       }
     } catch (err) {
@@ -113,7 +111,7 @@ export const useAddressController = () => {
       
       const updated = await addressService.updateAddress(id, address);
       if (updated) {
-        await fetchUserAddress(); // Recargar direcciones
+        await fetchUserAddress();
         return updated;
       }
     } catch (err) {
@@ -126,7 +124,7 @@ export const useAddressController = () => {
     try {
       const success = await addressService.deleteAddress(id);
       if (success) {
-        await fetchUserAddress(); // Recargar direcciones
+        await fetchUserAddress();
       }
       return success;
     } catch (err) {
@@ -151,12 +149,15 @@ export const useAddressController = () => {
 
   useEffect(() => {
     fetchUserAddress();
-  }, []);
+  }, [email]); // Dependencia del email
 
   return {
     addresses,
     loading,
     error,
+    currentUser,
+    email,
+    sources, // Para debugging
     fetchUserAddress,
     createAddress,
     updateAddress,
