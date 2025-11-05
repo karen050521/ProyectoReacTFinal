@@ -57,36 +57,68 @@ const ProfileFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handl
 
         >
             {({ handleSubmit }) => (
-                <Form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 p-6 bg-white rounded-md shadow-md">
-                    {/* User ID */}
-                    <div>
-                        <label htmlFor="user_id" className="block text-lg font-medium text-gray-700">User ID</label>
-                        <Field type="number" name="user_id" className="w-full border rounded-md p-2" />
-                        <ErrorMessage name="user_id" component="p" className="text-red-500 text-sm" />
+                <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                    <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
+                        <h3 className="font-medium text-black dark:text-white">
+                            {mode === 1 ? "Crear Perfil" : "Actualizar Perfil"}
+                        </h3>
                     </div>
+                    <Form onSubmit={handleSubmit} className="p-6.5">
+                        {/* User ID */}
+                        <div className="mb-4.5">
+                            <label htmlFor="user_id" className="mb-2.5 block text-black dark:text-white">
+                                User ID <span className="text-meta-1">*</span>
+                            </label>
+                            <Field 
+                                type="number" 
+                                name="user_id" 
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                placeholder="Ingrese el ID del usuario"
+                            />
+                            <ErrorMessage name="user_id" component="p" className="text-red-500 text-sm mt-1" />
+                        </div>
 
-                    {/* Phone */}
-                    <div>
-                        <label htmlFor="phone" className="block text-lg font-medium text-gray-700">Phone (Optional)</label>
-                        <Field type="text" name="phone" className="w-full border rounded-md p-2" placeholder="1234567890" />
-                        <ErrorMessage name="phone" component="p" className="text-red-500 text-sm" />
-                    </div>
+                        {/* Phone */}
+                        <div className="mb-4.5">
+                            <label htmlFor="phone" className="mb-2.5 block text-black dark:text-white">
+                                Teléfono (Opcional)
+                            </label>
+                            <Field 
+                                type="text" 
+                                name="phone" 
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                placeholder="1234567890" 
+                            />
+                            <ErrorMessage name="phone" component="p" className="text-red-500 text-sm mt-1" />
+                        </div>
 
-                    {/* Photo URL */}
-                    <div>
-                        <label htmlFor="photo" className="block text-lg font-medium text-gray-700">Photo URL (Optional)</label>
-                        <Field type="text" name="photo" className="w-full border rounded-md p-2" placeholder="https://example.com/photo.jpg" />
-                        <ErrorMessage name="photo" component="p" className="text-red-500 text-sm" />
-                    </div>
+                        {/* Photo URL */}
+                        <div className="mb-6">
+                            <label htmlFor="photo" className="mb-2.5 block text-black dark:text-white">
+                                URL de Foto (Opcional)
+                            </label>
+                            <Field 
+                                type="text" 
+                                name="photo" 
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                placeholder="https://example.com/photo.jpg" 
+                            />
+                            <ErrorMessage name="photo" component="p" className="text-red-500 text-sm mt-1" />
+                        </div>
 
-                    {/* Botón de enviar */}
-                    <button
-                        type="submit"
-                        className={`py-2 px-4 text-white rounded-md ${mode === 1 ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600"}`}
-                    >
-                        {mode === 1 ? "Crear" : "Actualizar"}
-                    </button>
-                </Form>
+                        {/* Botón de enviar */}
+                        <button
+                            type="submit"
+                            className={`flex w-full justify-center rounded p-3 font-medium text-gray hover:bg-opacity-90 ${
+                                mode === 1 
+                                    ? "bg-primary text-white" 
+                                    : "bg-success text-white"
+                            }`}
+                        >
+                            {mode === 1 ? "Crear Perfil" : "Actualizar Perfil"}
+                        </button>
+                    </Form>
+                </div>
             )}
         </Formik>
     );

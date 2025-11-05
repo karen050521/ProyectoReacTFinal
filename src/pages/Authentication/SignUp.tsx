@@ -5,15 +5,15 @@ import Logo from '../../images/logo/logo.svg';
 const SignUp = () => {
   return (
     <>
-      <div className="rounded-sm border border-[#9CA3AF] bg-[#F9FAFB] shadow-default dark:border-[#5B5B60] dark:bg-[#0A192F]">
+      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="py-17.5 px-26 text-center bg-[#DDDCDB] dark:bg-[#2D3748]">
+            <div className="py-17.5 px-26 text-center bg-gray dark:bg-meta-4">
               <Link className="mb-5.5 inline-block" to="/">
                 <img className="hidden dark:block" src={Logo} alt="Logo" />
                 <img className="dark:hidden" src={LogoDark} alt="Logo" />
               </Link>
-              <p className="2xl:px-20 text-[#1E3A8A] dark:text-[#F5F7FA]">
+              <p className="2xl:px-20 text-black dark:text-white">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit
                 suspendisse.
               </p>
@@ -143,23 +143,23 @@ const SignUp = () => {
             </div>
           </div>
 
-          <div className="w-full border-[#9CA3AF] dark:border-[#5B5B60] xl:w-1/2 xl:border-l-2">
+          <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-              <span className="mb-1.5 block font-medium text-[#1E3A8A] dark:text-[#1E40AF]">Start for free</span>
-              <h2 className="mb-9 text-2xl font-bold text-[#1E3A8A] dark:text-[#F5F7FA] sm:text-title-xl2">
+              <span className="mb-1.5 block font-medium">Start for free</span>
+              <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
                 Sign Up to Sistema de Seguridad
               </h2>
 
               <form>
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-[#1E3A8A] dark:text-[#F5F7FA]">
+                  <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Name
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       placeholder="Enter your full name"
-                      className="w-full rounded-lg border border-[#9CA3AF] bg-transparent py-4 pl-6 pr-10 text-[#1E3A8A] outline-none focus:border-[#359E39] focus-visible:shadow-none dark:border-[#5B5B60] dark:bg-[#0A192F] dark:text-[#F5F7FA] dark:focus:border-[#359E39]"
+                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
                     <span className="absolute right-4 top-4">
@@ -187,14 +187,14 @@ const SignUp = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-[#1E3A8A] dark:text-[#F5F7FA]">
+                  <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                   </label>
                   <div className="relative">
                     <input
                       type="email"
                       placeholder="Enter your email"
-                      className="w-full rounded-lg border border-[#9CA3AF] bg-transparent py-4 pl-6 pr-10 text-[#1E3A8A] outline-none focus:border-[#359E39] focus-visible:shadow-none dark:border-[#5B5B60] dark:bg-[#0A192F] dark:text-[#F5F7FA] dark:focus:border-[#359E39]"
+                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
                     <span className="absolute right-4 top-4">
@@ -218,14 +218,14 @@ const SignUp = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-[#1E3A8A] dark:text-[#F5F7FA]">
+                  <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Password
                   </label>
                   <div className="relative">
                     <input
                       type="password"
                       placeholder="Enter your password"
-                      className="w-full rounded-lg border border-[#9CA3AF] bg-transparent py-4 pl-6 pr-10 text-[#1E3A8A] outline-none focus:border-[#359E39] focus-visible:shadow-none dark:border-[#5B5B60] dark:bg-[#0A192F] dark:text-[#F5F7FA] dark:focus:border-[#359E39]"
+                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
                     <span className="absolute right-4 top-4">
@@ -253,14 +253,14 @@ const SignUp = () => {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-2.5 block font-medium text-[#1E3A8A] dark:text-[#F5F7FA]">
+                  <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Re-type Password
                   </label>
                   <div className="relative">
                     <input
                       type="password"
                       placeholder="Re-enter your password"
-                      className="w-full rounded-lg border border-[#9CA3AF] bg-transparent py-4 pl-6 pr-10 text-[#1E3A8A] outline-none focus:border-[#359E39] focus-visible:shadow-none dark:border-[#5B5B60] dark:bg-[#0A192F] dark:text-[#F5F7FA] dark:focus:border-[#359E39]"
+                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
                     <span className="absolute right-4 top-4">
@@ -291,11 +291,11 @@ const SignUp = () => {
                   <input
                     type="submit"
                     value="Create account"
-                    className="w-full cursor-pointer rounded-lg border border-[#359E39] bg-[#359E39] p-4 text-white transition hover:bg-opacity-90 dark:border-[#359E39] dark:bg-[#359E39]"
+                    className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
                 </div>
 
-                <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-[#9CA3AF] bg-[#DDDCDB] p-4 hover:bg-opacity-50 dark:border-[#5B5B60] dark:bg-[#2D3748] dark:hover:bg-opacity-50">
+                <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                   <span>
                     <svg
                       width="20"
@@ -333,9 +333,9 @@ const SignUp = () => {
                 </button>
 
                 <div className="mt-6 text-center">
-                  <p className="text-[#1E3A8A] dark:text-[#F5F7FA]">
+                  <p>
                     Already have an account?{' '}
-                    <Link to="/auth/signin" className="text-[#2563EB] dark:text-[#1E40AF]">
+                    <Link to="/auth/signin" className="text-primary">
                       Sign in
                     </Link>
                   </p>

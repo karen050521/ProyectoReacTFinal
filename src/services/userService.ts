@@ -1,14 +1,18 @@
-import api from "../interceptors/axiosInterceptor";
+import axios from "axios";
 import type { User } from "../models/user";
 
-const API_URL = "/users"; // Quitamos /api porque ya está en baseURL del interceptor
+
+const RAW_API_BASE_USER: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
+const API_BASE_USER = RAW_API_BASE_USER ? RAW_API_BASE_USER.replace(/\/$/, '') : '';
+const API_URL = API_BASE_USER ? `${API_BASE_USER}/users` : '/users';
 
 class UserService {
     async getUsers(): Promise<User[]> {
-        console.log("Obteniendo usuarios desde:", API_URL);
+        console.log(API_URL);
         try {
-            const response = await api.get<User[]>(API_URL);
-            console.log("Usuarios obtenidos:", response.data.length);
+            const response = await axios.get<User[]>(API_URL);
+            console.log(API_URL);
+            
             return response.data;
         } catch (error) {
             console.error("Error al obtener usuarios:", error);
@@ -18,7 +22,7 @@ class UserService {
 
     async getUserById(id: number): Promise<User | null> {
         try {
-            const response = await api.get<User>(`${API_URL}/${id}`);
+            const response = await axios.get<User>(`${API_URL}/${id}`);
             return response.data;
         } catch (error) {
             console.error("Usuario no encontrado:", error);
@@ -28,7 +32,7 @@ class UserService {
 
     async createUser(user: Omit<User, "id">): Promise<User | null> {
         try {
-            const response = await api.post<User>(API_URL, user);
+            const response = await axios.post<User>(API_URL, user);
             return response.data;
         } catch (error) {
             console.error("Error al crear  usuario:", error);
@@ -38,7 +42,7 @@ class UserService {
 
     async updateUser(id: number, user: Partial<User>): Promise<User| null> {
         try {
-            const response = await api.put<User>(`${API_URL}/${id}`, user);
+            const response = await axios.put<User>(`${API_URL}/${id}`, user);
             return response.data;
         } catch (error) {
             console.error("Error al actualizar rol de usuario:", error);
@@ -48,7 +52,7 @@ class UserService {
 
     async deleteUser(id: number): Promise<boolean> {
         try {
-            await api.delete(`${API_URL}/${id}`);
+            await axios.delete(`${API_URL}/${id}`);
             return true;
         } catch (error) {
             console.error("Error al eliminar usuario:", error);

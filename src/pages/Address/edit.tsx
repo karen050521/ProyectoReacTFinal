@@ -6,8 +6,8 @@ import { getUserById } from "../../services/userService";
 import Breadcrumb from "../../components/Breadcrumb";
 import Swal from "sweetalert2";
 
-const defaultLat = 5.0703;
-const defaultLng = -75.5138;
+const defaultLat = 28.221;
+const defaultLng = -31.155;
 
 export default function AddressEditPage(): JSX.Element {
   const { userId } = useParams<{ userId?: string }>();

@@ -26,7 +26,7 @@ const GenericTable = <T extends Record<string, any>>({
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-[#9CA3AF] dark:divide-[#5B5B60]">
-        <thead className="bg-[#9CA3AF] dark:bg-[#1E3A5A]">
+        <thead className="bg-[#9CA3AF] dark:bg-[#0A1628]">
           <tr>
             {columns.map((col) => (
               <th
@@ -45,9 +45,9 @@ const GenericTable = <T extends Record<string, any>>({
             </th>
           </tr>
         </thead>
-        <tbody className="bg-[#F9FAFB] divide-y divide-[#9CA3AF] dark:bg-[#0A1628] dark:divide-[#5B5B60]">
+        <tbody className="bg-white divide-y divide-[#9CA3AF] dark:bg-[#1E3A5A] dark:divide-[#5B5B60]">
           {data.map((item, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-[#DDDCDB] dark:hover:bg-[#1E3A5A]">
+            <tr key={rowIndex} className="hover:bg-[#F9FAFB] dark:hover:bg-[#2D3748]">
               {columns.map((col) => (
                 <td
                   key={col}
@@ -67,14 +67,20 @@ const GenericTable = <T extends Record<string, any>>({
                       <span className="inline-block">
                         <Button
                           size="sm"
-                          color={action.name === 'delete' ? 'red' : 'blue-gray'}
+                          color={action.name === 'edit' ? 'blue' : action.name === 'delete' ? 'blue' : 'green'}
                           onClick={() => handleAction(action.name, item)}
-                          className={`!px-2 !py-1 ${action.name === 'edit' ? '!bg-gray-400 hover:!bg-gray-500' : ''}`}
+                          className={`!px-2 !py-1 ${
+                            action.name === 'edit' 
+                              ? '!bg-[#9CA3AF] !border-[#9CA3AF] hover:!bg-[#6B7280] dark:!bg-[#1E40AF] dark:!border-[#1E40AF] dark:hover:!bg-[#2563EB]' 
+                              : action.name === 'delete'
+                              ? '!bg-[#9CA3AF] !border-[#9CA3AF] hover:!bg-[#6B7280] dark:!bg-[#1E40AF] dark:!border-[#1E40AF] dark:hover:!bg-[#2563EB]'
+                              : ''
+                          }`}
                           {...({} as any)}
                         >
                           {action.name === 'edit' ? (
                             <svg
-                              color='black'
+                            color='white'
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
                               height="24"
@@ -92,7 +98,7 @@ const GenericTable = <T extends Record<string, any>>({
                             </svg>
                           ) : action.name === 'delete' ? (
                             <svg
-                              color='red'
+                            color='#DC2626'
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
                               height="24"

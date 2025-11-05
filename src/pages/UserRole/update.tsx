@@ -1,42 +1,40 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
-import { getProfileById, updateProfile } from "../../services/profileService";
+import { getUserRoleById, updateUserRole } from "../../services/userRoleService";
 import Swal from "sweetalert2";
-
-import { Profile } from '../../models/Profile';
-import ProfileFormValidator from '../../components/profile/profileForm';
+import { UserRole } from '../../models/UserRole';
+import UserRoleFormValidator from '../../components/userRole/userRoleForm';
 import Breadcrumb from "../../components/Breadcrumb";
 
-const UpdateProfilePage = () => {
+const UpdateUserRolePage = () => {
     const { id } = useParams(); // Obtener el ID de la URL
     
     const navigate = useNavigate();
-    const [profile, setProfile] = useState<Profile | null>(null);
+    const [userRole, setUserRole] = useState<UserRole | null>(null);
 
-    // Cargar datos del perfil después del montaje
+    // Cargar datos del user role después del montaje
     useEffect(() => {
         console.log("Id->"+id)
-        const fetchProfile = async () => {
+        const fetchUserRole = async () => {
             if (!id) return; // Evitar errores si el ID no está disponible
-            const profileData = await getProfileById(parseInt(id));
-            setProfile(profileData);
+            const userRoleData = await getUserRoleById(id);
+            setUserRole(userRoleData);
         };
 
-        fetchProfile();
+        fetchUserRole();
     }, [id]);
 
-    const handleUpdateProfile = async (theProfile: Profile) => {
+    const handleUpdateUserRole = async (theUserRole: UserRole) => {
         try {
-            const updatedProfile = await updateProfile(theProfile.id || 0, theProfile);
-            if (updatedProfile) {
+            const updatedUserRole = await updateUserRole(theUserRole.id || "", theUserRole);
+            if (updatedUserRole) {
                 Swal.fire({
                     title: "Completado",
                     text: "Se ha actualizado correctamente el registro",
                     icon: "success",
                     timer: 3000
                 });
-                navigate("/profiles"); // Redirección en React Router
+                navigate("/user-roles"); // Redirección en React Router
             } else {
                 Swal.fire({
                     title: "Error",
@@ -55,20 +53,20 @@ const UpdateProfilePage = () => {
         }
     };
 
-    if (!profile) {
+    if (!userRole) {
         return <div>Cargando...</div>; // Muestra un mensaje de carga mientras se obtienen los datos
     }
 
     return (
         <>
-            <Breadcrumb pageName="Actualizar Perfil" />
-            <ProfileFormValidator
-                handleUpdate={handleUpdateProfile}
+            <Breadcrumb pageName="Actualizar Rol de Usuario" />
+            <UserRoleFormValidator
+                handleUpdate={handleUpdateUserRole}
                 mode={2} // 2 significa actualización
-                profile={profile}
+                userRole={userRole}
             />
         </>
     );
 };
 
-export default UpdateProfilePage;
+export default UpdateUserRolePage;

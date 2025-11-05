@@ -57,17 +57,6 @@ class PermissionService {
             return false;
         }
     }
-
-    // GET /api/permissions/grouped/role/{roleId} → permisos agrupados por rol
-    async getPermissionsByRole(roleId: number): Promise<Permission[]> {
-        try {
-            const response = await axios.get<Permission[]>(`${API_URL}/grouped/role/${roleId}`);
-            return response.data;
-        } catch (error) {
-            console.error("Error al obtener permisos por rol:", error);
-            return [];
-        }
-    }
 }
 
 // Exportamos una instancia de la clase para reutilizarla
@@ -79,4 +68,3 @@ export const getPermissionById = (id: number) => permissionService.getPermission
 export const createPermission = (permission: Omit<Permission, "id">) => permissionService.createPermission(permission);
 export const updatePermission = (id: number, permission: Partial<Permission>) => permissionService.updatePermission(id, permission);
 export const deletePermission = (id: number) => permissionService.deletePermission(id);
-export const getPermissionsByRole = (roleId: number) => permissionService.getPermissionsByRole(roleId);
