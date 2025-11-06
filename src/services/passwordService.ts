@@ -55,15 +55,11 @@ class PasswordService {
     }
 
     async getPasswordsByUserId(userId: number): Promise<Password[]> {
-        console.log('🔗 Service getPasswordsByUserId - userId:', userId);
-        console.log('🌐 URL que se va a llamar:', `${API_URL}/user/${userId}`);
         try {
             const response = await api.get<Password[]>(`${API_URL}/user/${userId}`);
-            console.log('✅ Respuesta exitosa del backend:', response.data);
             return response.data;
         } catch (error) {
             console.error("❌ Error al obtener contraseñas del usuario:", error);
-            console.error("❌ Detalles del error:", error);
             return [];
         }
     }

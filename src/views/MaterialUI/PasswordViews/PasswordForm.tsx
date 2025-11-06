@@ -262,8 +262,6 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ isEditMode = false }) => {
                 endAt: formattedEndAt
             };
 
-            console.log('Datos a enviar al backend:', passwordData);
-
             let success: boolean;
 
             if (isEditMode && id) {
