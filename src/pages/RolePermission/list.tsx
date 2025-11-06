@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Role } from "../../models/Role";
 import { roleService } from "../../services/roleService";
 import { useNavigate } from "react-router-dom";
+import { AdminGuard } from "../../components/guards/PermissionGuard";
 import {
   Card,
   CardContent,
@@ -77,7 +78,33 @@ const ListRolePermissions: React.FC = () => {
     }
 
     return (
-        <Card>
+        <AdminGuard fallback={
+            <div className="mx-auto max-w-7xl">
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-black dark:text-white">Gestión de Permisos por Rol</h1>
+                </div>
+                <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+                    <div className="mb-6 text-center">
+                        <h2 className="text-xl font-semibold text-black dark:text-white mb-2">
+                            Acceso Denegado
+                        </h2>
+                        <p className="text-gray-600 dark:text-gray-400">
+                            No tienes permisos para gestionar permisos por rol.
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                            Esta función está disponible solo para Administradores.
+                        </p>
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="mt-4 inline-flex items-center justify-center rounded-md bg-gray-600 py-2 px-4 text-center font-medium text-white hover:bg-opacity-90"
+                        >
+                            ← Volver
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }>
+            <Card>
             <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                     <Box display="flex" alignItems="center">
@@ -169,6 +196,7 @@ const ListRolePermissions: React.FC = () => {
                 )}
             </CardContent>
         </Card>
+        </AdminGuard>
     );
 };
 

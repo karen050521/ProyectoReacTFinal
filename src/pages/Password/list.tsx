@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import GenericTable from "../../components/GenericTable";
 import { Password } from "../../models/Password";
-import {passwordService} from "../../services/passawordService";
+import {passwordService} from "../../services/passwordService";
 import { PermissionGuard, ButtonGuard } from "../../guards";
 
 import Swal from "sweetalert2";

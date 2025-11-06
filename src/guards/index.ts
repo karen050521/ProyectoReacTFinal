@@ -7,13 +7,19 @@ export {
   hasEntityPermission,
   getEntityPermissions,
   createPermissionCheck,
+  isAdministrator,
+  isNormalUser,
+  ADMIN_PERMISSIONS,
+  USER_PERMISSIONS,
   PERMISSION_METHODS,
   ENTITIES,
+  ROLES,
   COMMON_PERMISSIONS
 } from '../utils/permissionHelpers';
 export {
   PermissionGuard,
   ButtonGuard,
   RouteGuard,
-  EntityGuard
+  EntityGuard,
+  AdminGuard
 } from '../components/guards/PermissionGuard';

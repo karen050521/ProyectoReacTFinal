@@ -2,7 +2,7 @@ import React from "react";
 import GenericTable from "../../components/GenericTable";
 import { Permission } from "../../models/Permission";
 import { usePermissionController } from "../../controllers/usePermissionController";
-import { PermissionGuard, ButtonGuard } from "../../guards";
+import { AdminGuard, ButtonGuard } from "../../guards";
 
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -55,14 +55,12 @@ const ListPermissions: React.FC = () => {
     };
 
     return (
-        <PermissionGuard 
-            url="/permissions" 
-            method="GET"
+        <AdminGuard 
             fallback={
                 <div className="p-6 text-center">
                     <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
-                    <p className="text-gray-600">No tienes permisos para ver la lista de permisos.</p>
-                    <p className="text-sm text-gray-500 mt-2">Esta función requiere permisos de administrador.</p>
+                    <p className="text-gray-600">No tienes permisos para gestionar permisos del sistema.</p>
+                    <p className="text-sm text-gray-500 mt-2">Esta función requiere rol Administrator.</p>
                 </div>
             }
         >
@@ -109,7 +107,7 @@ const ListPermissions: React.FC = () => {
                     />
                 )}
             </div>
-        </PermissionGuard>
+        </AdminGuard>
     );
 };
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { PermissionGuard } from "../../guards";
+import { AdminGuard } from "../../guards";
 
 import { getRoleById, updateRole } from "../../services/roleService";
 import Swal from "sweetalert2";
@@ -62,15 +62,19 @@ const UpdateRolePage = () => {
     }
 
     return (
-        <PermissionGuard 
-            url="/roles" 
-            method="PUT"
+        <AdminGuard 
             fallback={
                 <div className="p-6 text-center">
                     <Breadcrumb pageName="Acceso Denegado" />
                     <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
-                    <p className="text-gray-600">No tienes permisos para actualizar roles.</p>
-                    <p className="text-sm text-gray-500 mt-2">Esta función requiere permisos de administrador.</p>
+                    <p className="text-gray-600">No tienes permisos para actualizar roles del sistema.</p>
+                    <p className="text-sm text-gray-500 mt-2">Esta función está disponible solo para Administradores.</p>
+                    <button
+                      onClick={() => navigate(-1)}
+                      className="mt-4 inline-flex items-center justify-center rounded-md bg-gray-600 py-2 px-4 text-center font-medium text-white hover:bg-opacity-90"
+                    >
+                      ← Volver
+                    </button>
                 </div>
             }
         >
@@ -80,7 +84,7 @@ const UpdateRolePage = () => {
                 mode={2} // 2 significa actualización
                 onSubmit={handleUpdateRole}
             />
-        </PermissionGuard>
+        </AdminGuard>
     );
 };
 

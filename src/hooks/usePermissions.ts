@@ -2,11 +2,9 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { userRoleService } from "../services/userRoleService";
-import { rolePermissionService } from "../services/rolePermissionService";
-import { permissionService } from "../services/permissionService";
+import { ADMIN_PERMISSIONS, USER_PERMISSIONS } from "../utils/permissionHelpers";
 import type { Permission } from "../models/Permission";
 import type { UserRole } from "../models/UserRole";
-import type { RolePermission } from "../models/RolePermission";
 
 interface UsePermissionsReturn {
   permissions: Permission[];
@@ -15,23 +13,86 @@ interface UsePermissionsReturn {
   hasPermission: (url: string, method: string) => boolean;
   hasAnyPermission: (permissionChecks: Array<{url: string; method: string}>) => boolean;
   refreshPermissions: () => Promise<void>;
+  userRole: 'Administrator' | 'User' | null;
+  isAdministrator: boolean;
+  isUser: boolean;
 }
 
 export const usePermissions = (): UsePermissionsReturn => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<'Administrator' | 'User' | null>(null);
 
   // Obtener usuario del store (tradicional o Microsoft)
   const user = useSelector((state: RootState) => state.user.user);
   const microsoftUser = useSelector((state: RootState) => state.microsoftAuth.user);
   const currentUser = user || microsoftUser;
 
-  // Función para cargar permisos del usuario
+  // Función para convertir role_id a permisos predefinidos
+  const getPermissionsByRoleId = (roleId: number | null): Permission[] => {
+    console.log(`🎭 Converting role_id ${roleId} to permissions`);
+    
+    if (roleId === 1) {
+      // Administrator - Todos los permisos administrativos
+      console.log("👑 Role detected: Administrator");
+      setUserRole('Administrator');
+      
+      // Convertir el objeto ADMIN_PERMISSIONS a array de Permission
+      const adminPermissionArray = Object.values(ADMIN_PERMISSIONS);
+      return adminPermissionArray.map((permCheck, index) => ({
+        id: index + 1,
+        url: permCheck.url,
+        method: permCheck.method,
+        entity: permCheck.url.replace('/', '').charAt(0).toUpperCase() + permCheck.url.replace('/', '').slice(1),
+        name: `${permCheck.url}.${permCheck.method.toLowerCase()}`,
+        description: `Permission for ${permCheck.method} ${permCheck.url}`,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+    } else if (roleId === 2 || roleId === null || roleId === undefined) {
+      // User o sin rol asignado - Solo permisos personales
+      console.log(roleId === 2 ? "👤 Role detected: User" : "🔄 No role assigned - using User permissions as default");
+      setUserRole('User');
+      
+      // Convertir el objeto USER_PERMISSIONS a array de Permission
+      const userPermissionArray = Object.values(USER_PERMISSIONS);
+      return userPermissionArray.map((permCheck, index) => ({
+        id: index + 100,
+        url: permCheck.url,
+        method: permCheck.method,
+        entity: permCheck.url.replace('/', '').charAt(0).toUpperCase() + permCheck.url.replace('/', '').slice(1),
+        name: `${permCheck.url}.${permCheck.method.toLowerCase()}`,
+        description: `Permission for ${permCheck.method} ${permCheck.url}`,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+    } else {
+      // Rol desconocido - Usar permisos de User como fallback
+      console.warn(`⚠️ Unknown role_id: ${roleId} - using User permissions as fallback`);
+      setUserRole('User');
+      
+      // Convertir el objeto USER_PERMISSIONS a array de Permission
+      const userPermissionArray = Object.values(USER_PERMISSIONS);
+      return userPermissionArray.map((permCheck, index) => ({
+        id: index + 100,
+        url: permCheck.url,
+        method: permCheck.method,
+        entity: permCheck.url.replace('/', '').charAt(0).toUpperCase() + permCheck.url.replace('/', '').slice(1),
+        name: `${permCheck.url}.${permCheck.method.toLowerCase()}`,
+        description: `Permission for ${permCheck.method} ${permCheck.url}`,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+    }
+  };
+
+  // Función para cargar permisos del usuario basados en su role_id
   const loadUserPermissions = async () => {
     if (!currentUser?.id) {
       console.warn("usePermissions: No user ID available");
       setPermissions([]);
+      setUserRole(null);
       return;
     }
 
@@ -41,54 +102,58 @@ export const usePermissions = (): UsePermissionsReturn => {
     try {
       // Convertir ID a number si es string
       const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id) : currentUser.id;
-      console.log("🔐 Loading permissions for user:", userId);
+      console.log("🔐 Loading role for user:", userId);
 
-      // 1. Obtener roles del usuario
+      // 1. Obtener roles del usuario desde /api/user-roles/user/{userId}
       const userRoles: UserRole[] = await userRoleService.getRolesByUser(userId);
-      console.log("👤 User roles:", userRoles);
+      console.log("👤 User roles from API:", userRoles);
 
       if (userRoles.length === 0) {
-        console.warn("⚠️ User has no roles assigned");
-        setPermissions([]);
+        console.warn("⚠️ User has no roles assigned - using default User permissions (role_id: 2)");
+        // Usuario sin rol asignado obtiene permisos de User por defecto
+        const defaultPermissions = getPermissionsByRoleId(2);
+        setPermissions(defaultPermissions);
         return;
       }
 
-      // 2. Para cada rol, obtener sus permisos y cargar los detalles completos
-      const permissionIds = new Set<number>(); // Para evitar duplicados
-      const rolePermissionPromises: Promise<RolePermission[]>[] = [];
+      // 2. Obtener el primer rol activo (puedes ajustar la lógica si hay múltiples roles)
+      const activeUserRole = userRoles.find(ur => {
+        // Verificar si el rol está activo (dentro del período de validez)
+        const now = new Date();
+        const startAt = ur.startAt ? new Date(ur.startAt) : null;
+        const endAt = ur.endAt ? new Date(ur.endAt) : null;
+        
+        const isActive = (!startAt || startAt <= now) && (!endAt || endAt >= now);
+        console.log(`🔍 Role ${ur.role_id} active check:`, {
+          now: now.toISOString(),
+          startAt: startAt?.toISOString(),
+          endAt: endAt?.toISOString(),
+          isActive
+        });
+        
+        return isActive;
+      }) || userRoles[0]; // Fallback al primer rol si ninguno está explícitamente activo
 
-      // Recopilar todos los permisos de todos los roles
-      for (const userRole of userRoles) {
-        console.log(`🎭 Loading permissions for role: ${userRole.role_id}`);
-        rolePermissionPromises.push(rolePermissionService.getPermissionsByRoleId(userRole.role_id));
+      if (!activeUserRole) {
+        console.warn("⚠️ No active role found for user - using default User permissions (role_id: 2)");
+        // Usuario sin rol activo obtiene permisos de User por defecto
+        const defaultPermissions = getPermissionsByRoleId(2);
+        setPermissions(defaultPermissions);
+        return;
       }
 
-      // Ejecutar todas las consultas en paralelo
-      const allRolePermissions = await Promise.all(rolePermissionPromises);
-      
-      // Extraer IDs únicos de permisos
-      allRolePermissions.flat().forEach(rolePermission => {
-        permissionIds.add(rolePermission.permission_id);
-      });
+      console.log("🎯 Active user role:", activeUserRole);
 
-      console.log("📊 Total unique permission IDs:", permissionIds.size, Array.from(permissionIds));
+      // 3. Convertir role_id a permisos predefinidos
+      const rolePermissions = getPermissionsByRoleId(activeUserRole.role_id);
       
-      // 3. Cargar los objetos Permission completos por ID
-      const permissionDetailPromises = Array.from(permissionIds).map(id => 
-        permissionService.getPermissionById(id)
-      );
-
-      const permissionResults = await Promise.all(permissionDetailPromises);
-      
-      // Filtrar permisos válidos (no null)
-      const validPermissions = permissionResults.filter((p): p is Permission => p !== null);
-      
-      console.log("✅ Loaded permissions:", validPermissions);
-      setPermissions(validPermissions);
+      console.log("✅ Loaded permissions based on role_id:", rolePermissions);
+      setPermissions(rolePermissions);
 
     } catch (err) {
       console.error("❌ Error loading user permissions:", err);
       setError("Error al cargar permisos del usuario");
+      setUserRole(null);
     } finally {
       setLoading(false);
     }
@@ -142,5 +207,8 @@ export const usePermissions = (): UsePermissionsReturn => {
     hasPermission,
     hasAnyPermission,
     refreshPermissions,
+    userRole,
+    isAdministrator: userRole === 'Administrator',
+    isUser: userRole === 'User',
   };
 };

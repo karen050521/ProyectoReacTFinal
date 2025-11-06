@@ -1,6 +1,6 @@
 import React from 'react';
 import UserRoleList from '../../views/MaterialUI/UserRoleViews/UserRoleList';
-import { PermissionGuard } from '../../guards';
+import { AdminGuard } from '../../guards';
 
 /**
  * Página principal para la gestión de asignación de roles
@@ -8,19 +8,17 @@ import { PermissionGuard } from '../../guards';
  */
 const UserRolePage: React.FC = () => {
     return (
-        <PermissionGuard 
-            url="/user-roles" 
-            method="GET"
+        <AdminGuard 
             fallback={
                 <div className="p-6 text-center">
                     <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
-                    <p className="text-gray-600">No tienes permisos para gestionar roles de usuarios.</p>
-                    <p className="text-sm text-gray-500 mt-2">Esta función requiere permisos de administrador.</p>
+                    <p className="text-gray-600">No tienes permisos para gestionar asignación de roles.</p>
+                    <p className="text-sm text-gray-500 mt-2">Esta función requiere rol Administrator.</p>
                 </div>
             }
         >
             <UserRoleList />
-        </PermissionGuard>
+        </AdminGuard>
     );
 };
 

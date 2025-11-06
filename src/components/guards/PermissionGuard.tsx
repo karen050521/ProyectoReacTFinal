@@ -171,3 +171,45 @@ export const EntityGuard: React.FC<EntityGuardProps> = ({
 
   return hasAccess ? <>{children}</> : <>{fallback}</>;
 };
+
+interface AdminGuardProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+/**
+ * AdminGuard - Wrapper especial para funciones administrativas
+ * Simplifica el uso verificando si el usuario tiene permisos de administrador
+ * 
+ * Uso:
+ * <AdminGuard fallback={<NoAdminMessage />}>
+ *   <AdminPanel />
+ * </AdminGuard>
+ */
+export const AdminGuard: React.FC<AdminGuardProps> = ({
+  children,
+  fallback
+}) => {
+  const { permissions } = usePermissions();
+  
+  // Verificar si tiene permisos de administrador (al menos uno de estos críticos)
+  const isAdmin = hasAnyPermission(permissions, [
+    { url: '/users', method: 'GET' },
+    { url: '/roles', method: 'GET' },
+    { url: '/permissions', method: 'GET' }
+  ]);
+
+  if (!isAdmin) {
+    return fallback ? (
+      <>{fallback}</>
+    ) : (
+      <div className="p-6 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
+        <p className="text-gray-600">Esta función requiere permisos de administrador.</p>
+        <p className="text-sm text-gray-500 mt-2">Solo usuarios con rol Administrator pueden acceder.</p>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
