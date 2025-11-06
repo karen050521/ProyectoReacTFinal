@@ -190,16 +190,42 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({
   children,
   fallback
 }) => {
-  const { permissions } = usePermissions();
+  const { permissions, loading, isAdminSafe, roleId, useDynamicPermissions, isTransitioning } = usePermissions();
   
-  // Verificar si tiene permisos de administrador (al menos uno de estos críticos)
-  const isAdmin = hasAnyPermission(permissions, [
+  // Durante la carga inicial o transición, mostrar loader en lugar del fallback
+  if (loading && !isTransitioning) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-solid border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+  
+  // 🛡️ Verificación principal: usar isAdminSafe que es más confiable
+  const isAdmin = isAdminSafe();
+  
+  // 🔄 Verificación adicional durante transición a modo dinámico
+  const hasAdminPermissionsDynamic = hasAnyPermission(permissions, [
     { url: '/users', method: 'GET' },
     { url: '/roles', method: 'GET' },
     { url: '/permissions', method: 'GET' }
   ]);
+  
+  // ✅ Si es admin por role_id o tiene permisos admin, permitir acceso
+  // Durante transición, mantener acceso si es admin verificado
+  const allowAccess = isAdmin || hasAdminPermissionsDynamic || (isTransitioning && roleId === 1);
+  
+  console.log('🛡️ AdminGuard evaluation:', {
+    roleId,
+    isAdmin,
+    hasAdminPermissionsDynamic,
+    allowAccess,
+    useDynamicPermissions,
+    isTransitioning,
+    permissionsCount: permissions.length
+  });
 
-  if (!isAdmin) {
+  if (!allowAccess) {
     return fallback ? (
       <>{fallback}</>
     ) : (

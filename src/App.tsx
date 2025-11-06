@@ -10,6 +10,7 @@ import routes from './routes';
 
 // Dependency Inversion: AuthProvider maneja abstracción de auth
 import { AuthProvider } from './context/AuthContext';
+import { PermissionUpdateProvider } from './context/PermissionUpdateContext';
 import ProtectedRoute from "../src/components/Auth/ProtectedRoute";
 import MicrosoftCallback from './components/Auth/MicrosoftCallback';
 import MsalSync from './components/Auth/MsalSync';
@@ -41,13 +42,14 @@ function App() {
     // MsalSync actúa como adaptador que conecta MSAL con AuthProvider
     <MsalProvider instance={msalInstance}>
       <AuthProvider>
-        <MsalSync>
-          <Toaster
-            position="top-right"
-            reverseOrder={false}
-            containerClassName="overflow-auto"
-          />
-          <Routes>
+        <PermissionUpdateProvider>
+          <MsalSync>
+            <Toaster
+              position="top-right"
+              reverseOrder={false}
+              containerClassName="overflow-auto"
+            />
+            <Routes>
             {/* Rutas públicas */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/signin" element={<SignIn />} />
@@ -77,6 +79,7 @@ function App() {
             </Route>
           </Routes>
         </MsalSync>
+        </PermissionUpdateProvider>
       </AuthProvider>
     </MsalProvider>
   );

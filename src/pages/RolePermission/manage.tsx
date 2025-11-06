@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { permissionService } from "../../services/permissionService";
 import { rolePermissionService } from "../../services/rolePermissionService";
 import { roleService } from "../../services/roleService";
+import { usePermissions } from "../../hooks/usePermissions";
+import { usePermissionUpdate } from "../../context/PermissionUpdateContext";
 import { Permission } from "../../models/Permission";
 import { Role } from "../../models/Role";
 import Swal from "sweetalert2";
@@ -34,6 +36,29 @@ const ManageRolePermissions = () => {
   const [assignedPermissions, setAssignedPermissions] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Hook para manejar permisos dinámicos
+  const { isAdminSafe, enableDynamicMode, refreshPermissions } = usePermissions();
+  const { triggerPermissionUpdate } = usePermissionUpdate();
+
+  // 🔍 DEBUG: Verificar estado de permisos actual
+  const debugPermissionState = async () => {
+    if (!roleId) return;
+    
+    console.log("🔍 === PERMISSION DEBUG ===");
+    try {
+      const currentPermsFromService = await permissionService.getPermissionsByRole(Number.parseInt(roleId));
+      console.log("📊 Current permissions from getPermissionsByRole API:", currentPermsFromService);
+      
+      const rolePermsFromService = await rolePermissionService.getPermissionsByRoleId(Number.parseInt(roleId));
+      console.log("📊 Current role-permissions from getPermissionsByRoleId API:", rolePermsFromService);
+      
+      console.log("📊 Current assigned permissions in UI:", Array.from(assignedPermissions));
+    } catch (error) {
+      console.error("❌ Error in debug:", error);
+    }
+    console.log("🔍 === END DEBUG ===");
+  };
 
   useEffect(() => {
     fetchData();
@@ -104,11 +129,19 @@ const ManageRolePermissions = () => {
             newSet.delete(permissionId);
             return newSet;
           });
+          
+          // 🔄 Solo activar modo dinámico si el admin lo confirma o si ya está en modo dinámico
+          if (isAdminSafe()) {
+            console.log("🛡️ Admin detected - safe to enable dynamic mode");
+            await enableDynamicMode();
+            triggerPermissionUpdate();
+          }
+          
           Swal.fire({
             title: "¡Éxito!",
-            text: "Permiso eliminado del rol",
+            text: "Permiso eliminado del rol. Los guards se actualizarán automáticamente.",
             icon: "success",
-            timer: 1500,
+            timer: 2000,
             showConfirmButton: false,
           });
         } else {
@@ -123,11 +156,19 @@ const ManageRolePermissions = () => {
         );
         if (result) {
           setAssignedPermissions((prev) => new Set(prev).add(permissionId));
+          
+          // 🔄 Solo activar modo dinámico si el admin lo confirma o si ya está en modo dinámico
+          if (isAdminSafe()) {
+            console.log("🛡️ Admin detected - safe to enable dynamic mode");
+            await enableDynamicMode();
+            triggerPermissionUpdate();
+          }
+          
           Swal.fire({
             title: "¡Éxito!",
-            text: "Permiso asignado al rol",
+            text: "Permiso asignado al rol. Los guards se actualizarán automáticamente.",
             icon: "success",
-            timer: 1500,
+            timer: 2000,
             showConfirmButton: false,
           });
         } else {
@@ -185,6 +226,12 @@ const ManageRolePermissions = () => {
             >
               <ArrowBackIcon fontSize="small" />
               Volver
+            </button>
+            <button
+              onClick={debugPermissionState}
+              className="inline-flex items-center gap-2 rounded-md border border-red-500 py-2 px-4 text-red-600 hover:bg-red-50"
+            >
+              🔍 Debug
             </button>
           </div>
         </div>

@@ -72,6 +72,70 @@ class RolePermissionService {
         }
     }
 
+    // PUT /api/roles/{roleId}/permissions → actualización bulk de permisos
+    async updateRolePermissionsBulk(roleId: number, permissionIds: number[]): Promise<boolean> {
+        try {
+            console.log(`🔄 Bulk update permissions for role ${roleId}:`, permissionIds);
+            await api.put(`/roles/${roleId}/permissions`, {
+                permissionIds: permissionIds
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(`✅ Bulk update successful for role ${roleId}`);
+            return true;
+        } catch (error) {
+            console.error("❌ Error in bulk permissions update:", error);
+            return false;
+        }
+    }
+
+    // Método para actualizar permisos usando diff (si no hay bulk)
+    async updateRolePermissionsDiff(roleId: number, newPermissionIds: number[]): Promise<boolean> {
+        try {
+            console.log(`🔄 Diff update permissions for role ${roleId}`);
+            
+            // 1. Obtener permisos actuales
+            const currentRolePermissions = await this.getPermissionsByRoleId(roleId);
+            const currentPermissionIds = currentRolePermissions.map(rp => rp.permission_id);
+            
+            // 2. Calcular diferencias
+            const toAdd = newPermissionIds.filter(id => !currentPermissionIds.includes(id));
+            const toRemove = currentPermissionIds.filter(id => !newPermissionIds.includes(id));
+            
+            console.log(`📊 Permissions to add:`, toAdd);
+            console.log(`📊 Permissions to remove:`, toRemove);
+            
+            // 3. Aplicar cambios
+            let success = true;
+            
+            // Agregar nuevos permisos
+            for (const permissionId of toAdd) {
+                const result = await this.assignPermissionToRole(roleId, permissionId);
+                if (!result) {
+                    console.error(`❌ Failed to add permission ${permissionId}`);
+                    success = false;
+                }
+            }
+            
+            // Remover permisos
+            for (const permissionId of toRemove) {
+                const result = await this.removePermissionFromRole(roleId, permissionId);
+                if (!result) {
+                    console.error(`❌ Failed to remove permission ${permissionId}`);
+                    success = false;
+                }
+            }
+            
+            console.log(`${success ? '✅' : '❌'} Diff update completed for role ${roleId}`);
+            return success;
+        } catch (error) {
+            console.error("❌ Error in diff permissions update:", error);
+            return false;
+        }
+    }
+
     // CRUD básico genérico
     async createRolePermission(rolePermission: Omit<RolePermission, "id">): Promise<RolePermission | null> {
         try {
