@@ -44,7 +44,16 @@ class SessionService {
 
     async createSession(session: Omit<Session, "id">): Promise<Session | null> {
         try {
-            const response = await axios.post<Session>(API_URL, session);
+            // La API espera POST /api/sessions/user/{userId} con el body sin user_id
+            const userId = session.user_id;
+            const endpoint = API_BASE_SESS ? `${API_BASE_SESS}/sessions/user/${userId}` : `/sessions/user/${userId}`;
+            console.debug('SessionService.createSession -> endpoint=', endpoint, 'session=', session);
+            
+            // Crear copia del objeto sin user_id ya que va en la URL
+            const { user_id, ...sessionBody } = session;
+            
+            const response = await axios.post<Session>(endpoint, sessionBody);
+            console.debug('SessionService.createSession -> status=', response.status);
             return response.data;
         } catch (error) {
             console.error("Error al crear sesión:", error);
@@ -54,7 +63,12 @@ class SessionService {
 
     async updateSession(id: string, session: Partial<Session>): Promise<Session | null> {
         try {
-            const response = await axios.put<Session>(`${API_URL}/${id}`, session);
+            // La API espera PUT /api/sessions/{session_id}
+            const endpoint = `${API_URL}/${id}`;
+            console.debug('SessionService.updateSession -> endpoint=', endpoint, 'session=', session);
+            
+            const response = await axios.put<Session>(endpoint, session);
+            console.debug('SessionService.updateSession -> status=', response.status);
             return response.data;
         } catch (error) {
             console.error("Error al actualizar sesión:", error);
@@ -62,9 +76,14 @@ class SessionService {
         }
     }
 
-    async deleteSession(id: string): Promise<boolean> {
+    async deleteSession(id: string, userId?: number): Promise<boolean> {
         try {
-            await axios.delete(`${API_URL}/${id}`);
+            // La API espera DELETE /api/sessions/{session_id}
+            const endpoint = `${API_URL}/${id}`;
+            
+            console.debug('SessionService.deleteSession -> endpoint=', endpoint);
+            await axios.delete(endpoint);
+            console.debug('SessionService.deleteSession -> success');
             return true;
         } catch (error) {
             console.error("Error al eliminar sesión:", error);
@@ -82,4 +101,4 @@ export const getSessionById = (id: string) => sessionService.getSessionById(id);
 export const getSessionsByUserId = (userId: number) => sessionService.getSessionsByUserId(userId);
 export const createSession = (session: Omit<Session, "id">) => sessionService.createSession(session);
 export const updateSession = (id: string, session: Partial<Session>) => sessionService.updateSession(id, session);
-export const deleteSession = (id: string) => sessionService.deleteSession(id);
+export const deleteSession = (id: string, userId?: number) => sessionService.deleteSession(id, userId);

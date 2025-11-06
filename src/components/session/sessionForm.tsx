@@ -10,11 +10,12 @@ interface MyFormProps {
     handleCreate?: (values: Session) => void;
     handleUpdate?: (values: Session) => void;
     session?: Session | null;
+    initialUserId?: number; // Nuevo: para pre-llenar el userId
 }
 
 
 
-const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handleUpdate, session }) => {
+const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handleUpdate, session, initialUserId }) => {
     const navigate = useNavigate();
 
     const handleSubmit = (formattedValues: Session) => {
@@ -34,7 +35,7 @@ const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handl
     return (
         <Formik
             initialValues={session ? session : {
-                user_id: 0,
+                user_id: initialUserId || 0,
                 token: "",
                 expiration: "",
                 FACode: "",
@@ -59,9 +60,23 @@ const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handl
                     .required("El estado es obligatorio"),
             })}
             onSubmit={(values) => {
+                // Convertir formato de fecha de 'YYYY-MM-DDTHH:mm' a 'YYYY-MM-DD HH:MM:SS'
+                let formattedExpiration = values.expiration;
+                if (formattedExpiration && formattedExpiration.includes('T')) {
+                    // Si viene en formato datetime-local (YYYY-MM-DDTHH:mm)
+                    formattedExpiration = formattedExpiration.replace('T', ' ') + ':00';
+                } else if (formattedExpiration && !formattedExpiration.includes(':')) {
+                    // Si viene solo fecha (YYYY-MM-DD), agregar hora por defecto
+                    formattedExpiration = formattedExpiration + ' 23:59:59';
+                } else if (formattedExpiration && formattedExpiration.split(':').length === 2) {
+                    // Si tiene formato HH:mm, agregar segundos
+                    formattedExpiration = formattedExpiration + ':00';
+                }
+                
                 const formattedValues = {
                     ...values,
                     user_id: Number(values.user_id),
+                    expiration: formattedExpiration,
                     FACode: values.FACode || null
                 };
                 handleSubmit(formattedValues);
@@ -80,12 +95,15 @@ const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handl
                         {/* User ID */}
                         <div>
                             <label htmlFor="user_id" className="mb-2.5 block text-sm font-medium text-gray-700 dark:text-white">
-                                User ID
+                                User ID {initialUserId && <span className="text-xs text-gray-500">(Asignado automáticamente)</span>}
                             </label>
                             <Field 
                                 type="number" 
                                 name="user_id" 
-                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                readOnly={!!initialUserId}
+                                className={`w-full rounded border-[1.5px] border-stroke px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:text-white dark:focus:border-primary ${
+                                    initialUserId ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : 'bg-transparent dark:bg-form-input'
+                                }`}
                             />
                             <ErrorMessage name="user_id" component="p" className="text-red-500 text-sm mt-1" />
                         </div>

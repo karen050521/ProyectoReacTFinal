@@ -80,9 +80,9 @@ const ListSessions: React.FC = () => {
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Si, eliminar",
                 cancelButtonText: "No"
-            }).then(async (result) => {
+                }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const success = await sessionService.deleteSession(item.id!);
+                    const success = await sessionService.deleteSession(item.id!, item.user_id);
                     if (success) {
                         Swal.fire({
                             title: "Eliminado",
@@ -90,7 +90,7 @@ const ListSessions: React.FC = () => {
                             icon: "success"
                         });
                     }
-                    // 🔹 Vuelve a obtener los usuarios después de eliminar uno
+                    // 🔹 Vuelve a obtener las sesiones después de eliminar una
                     fetchData();
                 }
             });
