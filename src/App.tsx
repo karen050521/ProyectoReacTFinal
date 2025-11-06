@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-import ECommerce from './pages/Dashboard/ECommerce';
+
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import LoginPage from './pages/auth/LoginPage'; // Nueva página de login con Google
