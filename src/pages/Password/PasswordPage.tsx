@@ -1,12 +1,11 @@
-import React from 'react';
-import PasswordList from '../../views/MaterialUI/PasswordViews/PasswordList';
+import ListPasswords from './list';
 
 /**
  * Página principal para la gestión de contraseñas
- * Muestra la lista de todas las contraseñas del sistema
+ * Muestra la lista de todas las contraseñas del sistema con dual UI
  */
-const PasswordPage: React.FC = () => {
-    return <PasswordList />;
+const PasswordPage = () => {
+    return <ListPasswords />;
 };
 
 export default PasswordPage;

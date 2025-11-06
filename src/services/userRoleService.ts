@@ -1,5 +1,6 @@
-import axios from "axios";
+
 import type { UserRole } from "../models/UserRole";
+import api from "../interceptors/axiosInterceptor";
 
 const RAW_API_BASE_UR: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
 const API_BASE_UR = RAW_API_BASE_UR ? RAW_API_BASE_UR.replace(/\/$/, '') : '';
@@ -9,7 +10,7 @@ class UserRoleService {
     async getUserRoles(): Promise<UserRole[]> {
         try {
             console.debug('UserRoleService.getUserRoles -> API_URL=', API_URL);
-            const response = await axios.get<UserRole[]>(API_URL);
+            const response = await api.get<UserRole[]>(API_URL);
             console.debug('UserRoleService.getUserRoles -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
@@ -20,7 +21,7 @@ class UserRoleService {
 
     async getUserRoleById(id: string): Promise<UserRole | null> {
         try {
-            const response = await axios.get<UserRole>(`${API_URL}/${id}`);
+            const response = await api.get<UserRole>(`${API_URL}/${id}`);
             return response.data;
         } catch (error) {
             console.error("Role de usuario no encontrado:", error);
@@ -30,7 +31,7 @@ class UserRoleService {
 
     async createUserRole(userRole: Omit<UserRole, "id">): Promise<UserRole | null> {
         try {
-            const response = await axios.post<UserRole>(API_URL, userRole);
+            const response = await api.post<UserRole>(API_URL, userRole);
             return response.data;
         } catch (error) {
             console.error("Error al crear rol de usuario:", error);
@@ -40,7 +41,7 @@ class UserRoleService {
 
     async updateUserRole(id: string, userRole: Partial<UserRole>): Promise<UserRole | null> {
         try {
-            const response = await axios.put<UserRole>(`${API_URL}/${id}`, userRole);
+            const response = await api.put<UserRole>(`${API_URL}/${id}`, userRole);
             return response.data;
         } catch (error) {
             console.error("Error al actualizar rol de usuario:", error);
@@ -50,7 +51,7 @@ class UserRoleService {
 
     async deleteUserRole(id: string): Promise<boolean> {
         try {
-            await axios.delete(`${API_URL}/${id}`);
+            await api.delete(`${API_URL}/${id}`);
             return true;
         } catch (error) {
             console.error("Error al eliminar rol de usuario:", error);

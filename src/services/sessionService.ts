@@ -1,5 +1,6 @@
-import axios from "axios";
+
 import type { Session } from "../models/Session";
+import api from "../interceptors/axiosInterceptor";
 
 const RAW_API_BASE_SESS: string | undefined = (import.meta as any).env?.VITE_API_URL || (import.meta as any).VITE_API_URL || (import.meta as any).env?.CLASES_NUBES || (import.meta as any).CLASES_NUBES || undefined;
 const API_BASE_SESS = RAW_API_BASE_SESS ? RAW_API_BASE_SESS.replace(/\/$/, '') : '';
@@ -9,7 +10,7 @@ class SessionService {
     async getSessions(): Promise<Session[]> {
         try {
             console.debug('SessionService.getSessions -> API_URL=', API_URL);
-            const response = await axios.get<Session[]>(API_URL);
+            const response = await api.get<Session[]>(API_URL);
             console.debug('SessionService.getSessions -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
@@ -20,7 +21,7 @@ class SessionService {
 
     async getSessionById(id: string): Promise<Session | null> {
         try {
-            const response = await axios.get<Session>(`${API_URL}/${id}`);
+            const response = await api.get<Session>(`${API_URL}/${id}`);
             return response.data;
         } catch (error) {
             console.error("Sesión no encontrada:", error);
@@ -33,7 +34,7 @@ class SessionService {
             console.debug('SessionService.getSessionsByUserId -> userId=', userId);
             const endpoint = API_BASE_SESS ? `${API_BASE_SESS}/sessions/user/${userId}` : `/sessions/user/${userId}`;
             console.debug('SessionService.getSessionsByUserId -> endpoint=', endpoint);
-            const response = await axios.get<Session[]>(endpoint);
+            const response = await api.get<Session[]>(endpoint);
             console.debug('SessionService.getSessionsByUserId -> status=', response.status, 'count=', Array.isArray(response.data) ? response.data.length : 0);
             return response.data;
         } catch (error) {
@@ -52,7 +53,7 @@ class SessionService {
             // Crear copia del objeto sin user_id ya que va en la URL
             const { user_id, ...sessionBody } = session;
             
-            const response = await axios.post<Session>(endpoint, sessionBody);
+            const response = await api.post<Session>(endpoint, sessionBody);
             console.debug('SessionService.createSession -> status=', response.status);
             return response.data;
         } catch (error) {
@@ -67,7 +68,7 @@ class SessionService {
             const endpoint = `${API_URL}/${id}`;
             console.debug('SessionService.updateSession -> endpoint=', endpoint, 'session=', session);
             
-            const response = await axios.put<Session>(endpoint, session);
+            const response = await api.put<Session>(endpoint, session);
             console.debug('SessionService.updateSession -> status=', response.status);
             return response.data;
         } catch (error) {
@@ -82,7 +83,7 @@ class SessionService {
             const endpoint = `${API_URL}/${id}`;
             
             console.debug('SessionService.deleteSession -> endpoint=', endpoint);
-            await axios.delete(endpoint);
+            await api.delete(endpoint);
             console.debug('SessionService.deleteSession -> success');
             return true;
         } catch (error) {

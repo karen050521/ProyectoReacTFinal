@@ -53,6 +53,7 @@ const UserSessions = lazy(() => import('../pages/session/userSessions'));
 const PasswordList = lazy(() => import('../pages/Password/PasswordPage'));
 const PasswordCreate = lazy(() => import('../pages/Password/CreatePasswordPage'));
 const PasswordUpdate = lazy(() => import('../pages/Password/UpdatePasswordPage'));
+const UserPasswords = lazy(() => import('../pages/Password/userPassword'));
 
 // ====== Permissions ======
 const PermissionList = lazy(() => import('../pages/permission/list'));
@@ -160,6 +161,7 @@ const coreRoutes = [
 
   // Passwords // PASSWORD Routes (1:N User -> Password)
   { path: '/passwords', title: 'Password Management', component: PasswordList },
+  { path: '/passwords/user/:userId', title: 'User Passwords', component: UserPasswords },
   { path: '/passwords/create', title: 'Create Password', component: PasswordCreate },
   { path: '/passwords/update/:id', title: 'Update Password', component: PasswordUpdate },
 

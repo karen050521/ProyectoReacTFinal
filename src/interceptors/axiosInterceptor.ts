@@ -48,8 +48,9 @@ api.interceptors.response.use(
     },
     (error) => {
         if (error.response?.status === 401) {
-            console.log("No autorizado, redirigiendo a login...");
-            window.location.href = "/login"; // Redirigir si la sesión expira
+            console.error("❌ Error 401: No autorizado - Token inválido o expirado");
+            // No redirigir aquí, dejar que ProtectedRoute maneje la redirección
+            // El guardián (ProtectedRoute) es quien debe controlar el acceso
         }
         return Promise.reject(error);
     }
