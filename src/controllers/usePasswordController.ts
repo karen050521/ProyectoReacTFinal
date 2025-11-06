@@ -45,12 +45,22 @@ export const usePasswordController = (): UsePasswordControllerReturn => {
 
     // Función para obtener contraseñas por usuario específico
     const getPasswordsByUserId = async (userId: number): Promise<void> => {
+        console.log('🎛️ Controller getPasswordsByUserId - userId:', userId);
         setLoading(true);
         setError(null);
         try {
             const data = await passwordService.getPasswordsByUserId(userId);
+            console.log('📊 Datos recibidos del servicio:', data);
+            console.log('📊 Cantidad de contraseñas encontradas:', data.length);
+            
+            // 🐛 Debug detallado: mostrar user_id de cada contraseña
+            data.forEach((password, index) => {
+                console.log(`  Password ${index + 1}: user_id=${password.user_id}, id=${password.id}`);
+            });
+            
             setPasswords(data);
         } catch (err) {
+            console.error('❌ Error en getPasswordsByUserId:', err);
             setError("Error al cargar el historial de contraseñas del usuario");
             console.error("Error fetching user passwords:", err);
         } finally {

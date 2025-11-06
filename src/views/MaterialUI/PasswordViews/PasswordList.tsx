@@ -77,9 +77,12 @@ const PasswordList: React.FC<PasswordListProps> = ({
 
     // Cargar contraseñas según el filtro de usuario
     useEffect(() => {
+        console.log('🔍 PasswordList useEffect - userId:', userId);
         if (userId) {
+            console.log('📞 Llamando getPasswordsByUserId para userId:', userId);
             getPasswordsByUserId(userId);
         } else {
+            console.log('📞 Llamando refreshPasswords (todas las contraseñas)');
             refreshPasswords();
         }
     }, [userId]);
@@ -132,11 +135,36 @@ const PasswordList: React.FC<PasswordListProps> = ({
 
     // Filtrar contraseñas por usuario y término de búsqueda
     const filteredPasswords = passwords.filter((password) => {
+        // 🔧 FILTRO ADICIONAL: Si estamos en modo userId específico, filtrar también en frontend
+        let matchesUserId = true;
+        if (userId) {
+            matchesUserId = password.user_id === userId;
+            if (!matchesUserId) {
+                console.log(`🚫 Filtrando password ID ${password.id} porque user_id=${password.user_id} no coincide con userId=${userId}`);
+            }
+        }
+        
         const matchesUser = filterUserId === '' || password.user_id === filterUserId;
         const matchesSearch = searchTerm === '' || 
             password.content.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesUser && matchesSearch;
+        return matchesUserId && matchesUser && matchesSearch;
     });
+
+    // 🐛 Debug: Log para mostrar qué se está renderizando
+    console.log('🎯 PasswordList - Estado actual:');
+    console.log('  userId prop:', userId);
+    console.log('  passwords array:', passwords);
+    console.log('  filteredPasswords:', filteredPasswords);
+    console.log('  filterUserId:', filterUserId);
+    console.log('  showUserColumn:', showUserColumn);
+    
+    // 🐛 Debug adicional: mostrar detalles de cada contraseña
+    if (passwords.length > 0) {
+        console.log('📋 Detalles de contraseñas:');
+        passwords.forEach((password, index) => {
+            console.log(`  ${index + 1}. ID: ${password.id}, user_id: ${password.user_id}, content: ${password.content?.substring(0, 10)}...`);
+        });
+    }
 
     // Función para formatear fechas
     const formatDate = (dateString?: string): string => {
