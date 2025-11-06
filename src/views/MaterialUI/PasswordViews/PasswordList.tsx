@@ -35,6 +35,8 @@ import {
     Delete as DeleteIcon,
     Add as AddIcon,
     Visibility as ViewIcon,
+    Visibility as VisibilityIcon,
+    VisibilityOff as VisibilityOffIcon,
     Security as SecurityIcon,
     History as HistoryIcon,
     FilterList as FilterIcon
@@ -74,6 +76,7 @@ const PasswordList: React.FC<PasswordListProps> = ({
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [users, setUsers] = useState<User[]>([]);
     const [loadingUsers, setLoadingUsers] = useState<boolean>(false);
+    const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
 
     // Cargar contraseñas según el filtro de usuario
     useEffect(() => {
@@ -219,6 +222,62 @@ const PasswordList: React.FC<PasswordListProps> = ({
         return user ? `${user.name}` : `Usuario ${userId}`;
     };
 
+    // 🔐 Función para mostrar contraseña de forma segura
+    const formatPasswordDisplay = (content: string): string => {
+        // Detectar si es un hash (bcrypt, scrypt, etc.)
+        const isHash = content.startsWith('$') || content.length > 50;
+        
+        if (isHash) {
+            // Si es hash, mostrar puntos fijos
+            return "••••••••••••";
+        } else {
+            // Si es texto plano (no debería pasar en producción), enmascarar
+            return "•".repeat(Math.min(content.length, 12));
+        }
+    };
+
+    // 👁️ Función para toggle visibilidad de contraseña
+    const togglePasswordVisibility = (passwordId: number): void => {
+        setVisiblePasswords(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(passwordId)) {
+                newSet.delete(passwordId);
+            } else {
+                newSet.add(passwordId);
+            }
+            return newSet;
+        });
+    };
+
+    // 🔍 Función para mostrar contenido de contraseña (con toggle)
+    const renderPasswordContent = (password: Password): React.ReactNode => {
+        const isVisible = visiblePasswords.has(password.id!);
+        const isHash = password.content.startsWith('$') || password.content.length > 50;
+        
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body2" noWrap sx={{ maxWidth: 150, fontFamily: 'monospace' }}>
+                    {isVisible ? 
+                        (isHash ? 'Hash: ' + password.content.substring(0, 20) + '...' : password.content) 
+                        : formatPasswordDisplay(password.content)
+                    }
+                </Typography>
+                <Tooltip title={isVisible ? "Ocultar" : "Mostrar"}>
+                    <IconButton
+                        size="small"
+                        onClick={() => togglePasswordVisibility(password.id!)}
+                        sx={{ ml: 1 }}
+                    >
+                        {isVisible ? 
+                            <VisibilityOffIcon fontSize="small" /> : 
+                            <VisibilityIcon fontSize="small" />
+                        }
+                    </IconButton>
+                </Tooltip>
+            </Box>
+        );
+    };
+
     return (
         <Box sx={{ p: 3 }}>
             {/* Header */}
@@ -362,9 +421,7 @@ const PasswordList: React.FC<PasswordListProps> = ({
                                                     </TableCell>
                                                 )}
                                                 <TableCell>
-                                                    <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
-                                                        {"•".repeat(Math.min(password.content.length, 12))}
-                                                    </Typography>
+                                                    {renderPasswordContent(password)}
                                                 </TableCell>
                                                 <TableCell>
                                                     {formatDate(password.startAt)}

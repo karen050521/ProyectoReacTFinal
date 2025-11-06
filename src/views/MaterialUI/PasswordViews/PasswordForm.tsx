@@ -145,7 +145,7 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ isEditMode = false }) => {
             if (password) {
                 setInitialValues({
                     user_id: password.user_id,
-                    content: password.content,
+                    content: '', // ✅ NO mostrar hash en edición - campo vacío para nueva contraseña
                     startAt: formatDateForInput(password.startAt) || new Date().toISOString().slice(0, 16),
                     endAt: formatDateForInput(password.endAt || undefined)
                 });
@@ -366,6 +366,7 @@ const PasswordForm: React.FC<PasswordFormProps> = ({ isEditMode = false }) => {
                                                         fullWidth
                                                         label="Contraseña *"
                                                         type={passwordVisible ? 'text' : 'password'}
+                                                        placeholder={isEditMode ? 'Ingresa nueva contraseña para cambiar' : 'Ingresa una contraseña segura'}
                                                         error={touched.content && !!errors.content}
                                                         helperText={touched.content && errors.content}
                                                         InputProps={{
