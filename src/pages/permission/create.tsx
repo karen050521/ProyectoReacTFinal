@@ -1,14 +1,15 @@
 "use client"
 import { Permission } from '../../models/Permission';
 import PermissionFormValidator from '../../components/permission/permissionForm'; 
+import { usePermissionController } from '../../controllers/usePermissionController';
 
 import Swal from 'sweetalert2';
-import  { createPermission }  from "../../services/permissionService";
 import Breadcrumb from '../../components/Breadcrumb';
 import { useNavigate } from "react-router-dom";
 
 const CreatePermissionPage = () => {
     const navigate = useNavigate();
+    const { createPermission, loading } = usePermissionController();
 
     // Lógica de creación
     const handleCreatePermission = async (permission: Partial<Permission>) => {
@@ -45,6 +46,13 @@ const CreatePermissionPage = () => {
         <div>
             <h2>Create Permission</h2>
             <Breadcrumb pageName="Crear Permiso" />
+            
+            {loading && (
+                <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded">
+                    Guardando permiso...
+                </div>
+            )}
+            
             <PermissionFormValidator
                 initialValues={{}}
                 mode={1} // 1 significa creación

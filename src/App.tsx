@@ -2,7 +2,6 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-import ECommerce from './pages/Dashboard/ECommerce';
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import LoginPage from './pages/auth/LoginPage'; // Nueva página de login con Google
@@ -19,6 +18,7 @@ import MsalSync from './components/Auth/MsalSync';
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import { msalConfig } from "./config/msalConfig";
+import Home from './pages/Dashboard/Home';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -57,8 +57,8 @@ function App() {
             {/* Rutas protegidas - Single Responsibility */}
             <Route element={<ProtectedRoute />}>
               <Route element={<DefaultLayout />}>
-                <Route index element={<ECommerce />} />
-                <Route path="/dashboard" element={<ECommerce />} />
+                <Route index element={<Home />} />
+                <Route path="/dashboard" element={<Home />} />
                 {routes.map((route, index) => {
                   const { path, component: Component } = route;
                   return (

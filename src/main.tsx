@@ -11,6 +11,7 @@ import './satoshi.css';
 import { msalConfig } from './config/msalConfig';
 import { store, persistor } from './store/store';
 import Loader from './common/Loader';
+import { ThemeStyleProvider } from './context/ThemeStyleContext';
 
 // Crear instancia de MSAL
 const msalInstance = new PublicClientApplication(msalConfig);
@@ -20,9 +21,11 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <Provider store={store}>
       <PersistGate loading={<Loader />} persistor={persistor}>
         <MsalProvider instance={msalInstance}>
-          <Router>
-            <App />
-          </Router>
+          <ThemeStyleProvider>
+            <Router>
+              <App />
+            </Router>
+          </ThemeStyleProvider>
         </MsalProvider>
       </PersistGate>
     </Provider>

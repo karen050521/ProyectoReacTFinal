@@ -50,6 +50,10 @@ const RoleList: React.FC = () => {
     navigate(`/roles/update/${role.id}`);
   };
 
+  const handlePermissions = (role: Role) => {
+    navigate(`/role-permissions/manage/${role.id}`);
+  };
+
   const handleDelete = async () => {
     if (deleteDialog.role) {
       try {
@@ -205,7 +209,6 @@ const RoleList: React.FC = () => {
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
-
                         <Tooltip title="Eliminar rol">
                           <IconButton
                             color="error"
@@ -215,24 +218,15 @@ const RoleList: React.FC = () => {
                             <DeleteIcon />
                           </IconButton>
                         </Tooltip>
-                        
-                        <Tooltip title="Gestionar permisos del rol">
-                          <Button
-                            variant="text"
-                            size="small"
-                            onClick={() => navigate(`/role-permissions?roleId=${role.id}&roleName=${encodeURIComponent(role.name)}`)}
-                            sx={{ 
-                              minWidth: 'auto',
-                              textTransform: 'none',
-                              fontSize: '0.875rem',
-                              px: 1,
-                              py: 0.5,
-                              ml: 1
-                            }}
-                          >
-                            permisos
-                          </Button>
-                        </Tooltip>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          onClick={() => handlePermissions(role)}
+                          sx={{ ml: 1 }}
+                        >
+                          Permissions
+                        </Button>
 
 
                       </TableCell>

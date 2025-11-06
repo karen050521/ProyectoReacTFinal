@@ -1,9 +1,8 @@
-import { Link } from 'react-router-dom';
-import Logo from '../images/logo/logo-icon.svg';
 import DarkModeSwitcher from './DarkModeSwitcher';
 import DropdownMessage from './DropdownMessage';
 import DropdownNotification from './DropdownNotification';
 import DropdownUser from './DropdownUser';
+import StyleSwitcher from './StyleSwitcher';
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
@@ -12,7 +11,7 @@ const Header = (props: {
   return (
     <header className="sticky top-0 z-999 flex w-full bg-[#C5C4C3] drop-shadow-1 dark:bg-[#0A1628] dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11">
-        <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* <!-- Hamburger Toggle BTN --> */}
           <button
             aria-controls="sidebar"
@@ -20,7 +19,7 @@ const Header = (props: {
               e.stopPropagation();
               props.setSidebarOpen(!props.sidebarOpen);
             }}
-            className="z-99999 block rounded-sm border border-[#9CA3AF] bg-[#F9FAFB] p-1.5 shadow-sm dark:border-[#5B5B60] dark:bg-[#0A192F] lg:hidden"
+            className="z-99999 block rounded-sm border border-[#9CA3AF] bg-[#F9FAFB] p-1.5 shadow-sm dark:border-[#5B5B60] dark:bg-[#0A1628]"
           >
             <span className="relative block h-5.5 w-5.5 cursor-pointer">
               <span className="du-block absolute right-0 h-full w-full">
@@ -55,10 +54,6 @@ const Header = (props: {
             </span>
           </button>
           {/* <!-- Hamburger Toggle BTN --> */}
-
-          <Link className="block flex-shrink-0 lg:hidden" to="/">
-            <img src={Logo} alt="Logo" />
-          </Link>
         </div>
 
         {/* Spacer para empujar contenido a la derecha */}
@@ -66,6 +61,10 @@ const Header = (props: {
 
         <div className="flex items-center gap-3 2xsm:gap-7">
           <ul className="flex items-center gap-2 2xsm:gap-4">
+            {/* <!-- Style Switcher (Tailwind/Material UI) --> */}
+            <StyleSwitcher />
+            {/* <!-- Style Switcher --> */}
+
             {/* <!-- Dark Mode Toggler --> */}
             <DarkModeSwitcher />
             {/* <!-- Dark Mode Toggler --> */}

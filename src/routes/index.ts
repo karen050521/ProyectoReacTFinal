@@ -26,7 +26,8 @@ const ViewUser = lazy(() => import('../pages/Users/view'));
 const ProfileList = lazy(() => import('../pages/Profile/list'));
 const ProfileCreate = lazy(() => import('../pages/Profile/create'));
 const ProfileUpdate = lazy(() => import('../pages/Profile/update'));
-const UserProfile = lazy(() => import('../pages/Profile/userProfile'));
+const ViewProfile = lazy(() => import('../pages/Profile/viewProfile'));
+const EditProfile = lazy(() => import('../pages/Profile/userProfile'));
 
 // ====== Roles ======
 const RoleList = lazy(() => import('../pages/Role/RolePage'));
@@ -35,6 +36,7 @@ const RoleUpdate = lazy(() => import('../pages/Role/UpdateRolePage'));
 
 // ====== Role Permissions ======
 const RolePermissionList = lazy(() => import('../pages/RolePermission/list'));
+const ManageRolePermissions = lazy(() => import('../pages/RolePermission/manage'));
 
 // ====== User Roles ======
 const UserRoleList = lazy(() => import('../pages/UserRole/UserRolePage'));
@@ -120,8 +122,12 @@ const coreRoutes = [
     component: ProfileList },
 
   { path: '/profiles/user/:userId', 
-    title: 'User Profile', 
-    component: UserProfile },
+    title: 'View User Profile', 
+    component: ViewProfile },
+
+  { path: '/profile/edit/:userId', 
+    title: 'Edit User Profile', 
+    component: EditProfile },
 
   { path: '/profiles/create', 
     title: 'Create Profile', 
@@ -142,6 +148,7 @@ const coreRoutes = [
 
   // Role Permissions
   { path: '/role-permissions', title: 'Role Permissions', component: RolePermissionList },
+  { path: '/role-permissions/manage/:roleId', title: 'Manage Role Permissions', component: ManageRolePermissions },
   
   // User Roles
   { path: '/user-roles', title: 'User Role Management', component: UserRoleList },

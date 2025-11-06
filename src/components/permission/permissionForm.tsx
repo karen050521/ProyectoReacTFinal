@@ -22,11 +22,16 @@ const PermissionFormValidator: React.FC<PermissionFormProps> = ({
     method: Yup.string()
       .required('El método es obligatorio')
       .oneOf(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 'Método HTTP inválido'),
+    entity: Yup.string()
+      .required('La entidad es obligatoria')
+      .min(1, 'La entidad debe tener al menos 1 carácter')
+      .max(100, 'La entidad no puede exceder 100 caracteres'),
   });
 
   const defaultValues: Partial<Permission> = {
     url: '',
     method: 'GET',
+    entity: '',
     ...initialValues,
   };
 
@@ -75,6 +80,24 @@ const PermissionFormValidator: React.FC<PermissionFormProps> = ({
             </Field>
             <ErrorMessage
               name="method"
+              component="div"
+              className="mt-1 text-sm text-meta-1"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="entity" className="mb-2.5 block text-black dark:text-white">
+              Entidad <span className="text-meta-1">*</span>
+            </label>
+            <Field
+              type="text"
+              name="entity"
+              id="entity"
+              placeholder="Ingrese la entidad (ej: User, Role, Permission)"
+              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+            />
+            <ErrorMessage
+              name="entity"
               component="div"
               className="mt-1 text-sm text-meta-1"
             />
