@@ -45,7 +45,7 @@ const ListUsers: React.FC = () => {
                 cancelButtonText: "No"
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const success = await userService.deleteUser(item.id!);
+                    const success = await userService.deleteUser(Number(item.id!));
                     if (success) {
                         Swal.fire({
                             title: "Eliminado",
