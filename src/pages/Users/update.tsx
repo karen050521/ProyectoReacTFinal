@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { PermissionGuard } from "../../guards";
 
 import { getUserById, updateUser } from "../../services/userService";
 import Swal from "sweetalert2";
@@ -28,7 +29,7 @@ const UpdateUserPage = () => {
 
     const handleUpdateUser = async (theUser: User) => {
         try {
-            const updatedUser = await updateUser(theUser.id || 0, theUser);
+            const updatedUser = await updateUser(Number(theUser.id) || 0, theUser);
             if (updatedUser) {
                 Swal.fire({
                     title: "Completado",
@@ -60,14 +61,24 @@ const UpdateUserPage = () => {
     }
 
     return (
-        <>
+        <PermissionGuard 
+            url="/users" 
+            method="PUT"
+            fallback={
+                <div className="p-6 text-center">
+                    <Breadcrumb pageName="Acceso Denegado" />
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
+                    <p className="text-gray-600">No tienes permisos para actualizar usuarios.</p>
+                </div>
+            }
+        >
             <Breadcrumb pageName="Actualizar Usuario" />
             <UserFormValidator
                 handleUpdate={handleUpdateUser}
                 mode={2} // 2 significa actualización
                 user={user}
             />
-        </>
+        </PermissionGuard>
     );
 };
 

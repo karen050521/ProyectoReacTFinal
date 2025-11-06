@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import GenericTable from "../../components/GenericTable";
 import { Role } from "../../models/Role";
 import {roleService} from "../../services/roleService";
+import { PermissionGuard, ButtonGuard } from "../../guards";
 
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -57,18 +58,44 @@ const ListRoles: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>Role List</h2>
-            <GenericTable
-                data={roles}
-                columns={["id", "name", "description"]}
-                actions={[
-                    { name: "edit", label: "Edit" },
-                    { name: "delete", label: "Delete" },
-                ]}
-                onAction={handleAction}
-            />
-        </div>
+        <PermissionGuard 
+            url="/roles" 
+            method="GET"
+            fallback={
+                <div className="p-6 text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
+                    <p className="text-gray-600">No tienes permisos para ver la lista de roles.</p>
+                    <p className="text-sm text-gray-500 mt-2">Esta función requiere permisos de administrador.</p>
+                </div>
+            }
+        >
+            <div className="p-6">
+                <div className="mb-6 flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-800">Role List</h2>
+                    <ButtonGuard
+                        url="/roles"
+                        method="POST"
+                        onClick={() => navigate("/roles/create")}
+                        className="py-2 px-6 font-semibold rounded-md hover:opacity-90 flex items-center gap-2"
+                        style={{ backgroundColor: '#9333ea', color: '#ffffff' }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Nuevo Rol
+                    </ButtonGuard>
+                </div>
+                <GenericTable
+                    data={roles}
+                    columns={["id", "name", "description"]}
+                    actions={[
+                        { name: "edit", label: "Edit" },
+                        { name: "delete", label: "Delete" },
+                    ]}
+                    onAction={handleAction}
+                />
+            </div>
+        </PermissionGuard>
     );
 };
 

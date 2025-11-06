@@ -2,6 +2,7 @@
 import React, { useState } from 'react'; // Asegúrate de importar useState
 import { User } from '../../models/user';
 import UserFormValidator from '../../components/Users/UserFormValidator'; 
+import { PermissionGuard } from '../../guards';
 
 import Swal from 'sweetalert2';
 import  { createUser }  from "../../services/userService";
@@ -45,7 +46,17 @@ const App = () => {
         }
     };
     return (
-        <>
+        <PermissionGuard 
+            url="/users" 
+            method="POST"
+            fallback={
+                <div className="p-6 text-center">
+                    <Breadcrumb pageName="Acceso Denegado" />
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
+                    <p className="text-gray-600">No tienes permisos para crear usuarios.</p>
+                </div>
+            }
+        >
             <Breadcrumb pageName="Crear Usuario" />
             <div className="p-6">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800">Crear Nuevo Usuario</h2>
@@ -54,7 +65,7 @@ const App = () => {
                     mode={1} // 1 significa creación
                 />
             </div>
-        </>
+        </PermissionGuard>
     );
 };
 

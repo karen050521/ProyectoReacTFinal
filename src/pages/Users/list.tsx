@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import GenericTable from "../../components/GenericTable";
 import { User } from "../../models/user";
 import {userService} from "../../services/userService";
+import { PermissionGuard, ButtonGuard } from "../../guards";
 
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -73,37 +74,50 @@ const ListUsers: React.FC = () => {
     };
 
     return (
-        <div className="p-6">
-            <div className="mb-6 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">User List</h2>
-                <button
-                    onClick={() => navigate("/users/create")}
-                    style={{ backgroundColor: '#16a34a', color: '#ffffff' }}
-                    className="py-2 px-6 font-semibold rounded-md hover:opacity-90 flex items-center gap-2"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                    Nuevo Usuario
-                </button>
+        <PermissionGuard 
+            url="/users" 
+            method="GET"
+            fallback={
+                <div className="p-6 text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
+                    <p className="text-gray-600">No tienes permisos para ver la lista de usuarios.</p>
+                </div>
+            }
+        >
+            <div className="p-6">
+                <div className="mb-6 flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-800">User List</h2>
+                    <ButtonGuard
+                        url="/users"
+                        method="POST"
+                        onClick={() => navigate("/users/create")}
+                        className="py-2 px-6 font-semibold rounded-md hover:opacity-90 flex items-center gap-2"
+                        style={{ backgroundColor: '#16a34a', color: '#ffffff' }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Nuevo Usuario
+                    </ButtonGuard>
+                </div>
+                <GenericTable
+                    data={users}
+                    columns={["id", "name", "email"]}
+                    actions={[
+                        { name: "view", label: "View" },
+                        { name: "profile", label: "Profile" },
+                        { name: "address", label: "Address" },
+                        { name: "signature", label: "Signature" },
+                        { name: "devices", label: "Devices" },
+                        { name: "passwords", label: "Passwords" },
+                        { name: "sessions", label: "Sessions" },
+                        { name: "edit", label: "Edit" },
+                        { name: "delete", label: "Delete" },
+                    ]}
+                    onAction={handleAction}
+                />
             </div>
-            <GenericTable
-                data={users}
-                columns={["id", "name", "email"]}
-                actions={[
-                    { name: "view", label: "View" },
-                    { name: "profile", label: "Profile" },
-                    { name: "address", label: "Address" },
-                    { name: "signature", label: "Signature" },
-                    { name: "devices", label: "Devices" },
-                    { name: "passwords", label: "Passwords" },
-                    { name: "sessions", label: "Sessions" },
-                    { name: "edit", label: "Edit" },
-                    { name: "delete", label: "Delete" },
-                ]}
-                onAction={handleAction}
-            />
-        </div>
+        </PermissionGuard>
     );
 };
 

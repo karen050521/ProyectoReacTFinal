@@ -1,6 +1,7 @@
 "use client"
 import { Role } from '../../models/Role';
 import RoleFormValidator from '../../components/role/roleForm'; 
+import { PermissionGuard } from '../../guards';
 
 import Swal from 'sweetalert2';
 import  { createRole }  from "../../services/roleService";
@@ -42,15 +43,28 @@ const CreateRolePage = () => {
     };
 
     return (
-        <div>
-            <h2>Create Role</h2>
-            <Breadcrumb pageName="Crear Rol" />
-            <RoleFormValidator
-                initialValues={{}}
-                mode={1} // 1 significa creación
-                onSubmit={handleCreateRole}
-            />
-        </div>
+        <PermissionGuard 
+            url="/roles" 
+            method="POST"
+            fallback={
+                <div className="p-6 text-center">
+                    <Breadcrumb pageName="Acceso Denegado" />
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h2>
+                    <p className="text-gray-600">No tienes permisos para crear roles.</p>
+                    <p className="text-sm text-gray-500 mt-2">Esta función requiere permisos de administrador.</p>
+                </div>
+            }
+        >
+            <div className="p-6">
+                <Breadcrumb pageName="Crear Rol" />
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">Create Role</h2>
+                <RoleFormValidator
+                    initialValues={{}}
+                    mode={1} // 1 significa creación
+                    onSubmit={handleCreateRole}
+                />
+            </div>
+        </PermissionGuard>
     );
 };
 
