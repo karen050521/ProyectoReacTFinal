@@ -44,9 +44,9 @@ const GenericTable = <T extends Record<string, any>>({
             </th>
           </tr>
         </thead>
-        <tbody className="bg-[#F9FAFB] divide-y divide-[#9CA3AF] dark:bg-[#0A1628] dark:divide-[#5B5B60]">
+        <tbody className="bg-[#F9FAFB] divide-y divide-[#9CA3AF] dark:bg-[#1F2937] dark:divide-[#5B5B60]">
           {data.map((item, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-[#DDDCDB] dark:hover:bg-[#1E3A5A]">
+            <tr key={rowIndex} className="hover:bg-[#DDDCDB] dark:hover:bg-[#374151]">
               {columns.map((col) => (
                 <td
                   key={col}

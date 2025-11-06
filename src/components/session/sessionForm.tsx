@@ -1,6 +1,7 @@
 import { Session } from "../../models/Session";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
 
 
 // Definimos la interfaz para los props
@@ -14,6 +15,7 @@ interface MyFormProps {
 
 
 const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handleUpdate, session }) => {
+    const navigate = useNavigate();
 
     const handleSubmit = (formattedValues: Session) => {
         if (mode === 1 && handleCreate) {
@@ -23,6 +25,10 @@ const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handl
         } else {
             console.error('No function provided for the current mode');
         }
+    };
+
+    const handleCancel = () => {
+        navigate("/sessions");
     };
 
     return (
@@ -63,75 +69,108 @@ const SessionFormValidator: React.FC<MyFormProps> = ({ mode, handleCreate, handl
 
         >
             {({ handleSubmit }) => (
-                <Form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 p-6 bg-white rounded-md shadow-md">
-                    {/* User ID */}
-                    <div>
-                        <label htmlFor="user_id" className="block text-lg font-medium text-gray-700">User ID</label>
-                        <Field type="number" name="user_id" className="w-full border rounded-md p-2" />
-                        <ErrorMessage name="user_id" component="p" className="text-red-500 text-sm" />
+                <Form onSubmit={handleSubmit} className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                    <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
+                        <h3 className="font-medium text-black dark:text-white">
+                            {mode === 1 ? "Crear Nueva Sesión" : "Actualizar Sesión"}
+                        </h3>
                     </div>
 
-                    {/* Token */}
-                    <div>
-                        <label htmlFor="token" className="block text-lg font-medium text-gray-700">Token</label>
-                        <Field 
-                            type="text" 
-                            name="token" 
-                            className="w-full border rounded-md p-2 font-mono text-sm" 
-                            placeholder="Ingrese el token de sesión"
-                        />
-                        <ErrorMessage name="token" component="p" className="text-red-500 text-sm" />
-                    </div>
+                    <div className="p-6.5 grid grid-cols-1 gap-6">
+                        {/* User ID */}
+                        <div>
+                            <label htmlFor="user_id" className="mb-2.5 block text-sm font-medium text-gray-700 dark:text-white">
+                                User ID
+                            </label>
+                            <Field 
+                                type="number" 
+                                name="user_id" 
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                            />
+                            <ErrorMessage name="user_id" component="p" className="text-red-500 text-sm mt-1" />
+                        </div>
 
-                    {/* Expiration */}
-                    <div>
-                        <label htmlFor="expiration" className="block text-lg font-medium text-gray-700">Expiration Date</label>
-                        <Field 
-                            type="datetime-local" 
-                            name="expiration" 
-                            className="w-full border rounded-md p-2" 
-                        />
-                        <ErrorMessage name="expiration" component="p" className="text-red-500 text-sm" />
-                    </div>
+                        {/* Token */}
+                        <div>
+                            <label htmlFor="token" className="mb-2.5 block text-sm font-medium text-gray-700 dark:text-white">
+                                Token
+                            </label>
+                            <Field 
+                                type="text" 
+                                name="token" 
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary font-mono text-sm" 
+                                placeholder="Ingrese el token de sesión"
+                            />
+                            <ErrorMessage name="token" component="p" className="text-red-500 text-sm mt-1" />
+                        </div>
 
-                    {/* FACode */}
-                    <div>
-                        <label htmlFor="FACode" className="block text-lg font-medium text-gray-700">2FA Code (Optional)</label>
-                        <Field 
-                            type="text" 
-                            name="FACode" 
-                            className="w-full border rounded-md p-2" 
-                            placeholder="123456"
-                            maxLength={6}
-                        />
-                        <ErrorMessage name="FACode" component="p" className="text-red-500 text-sm" />
-                        <p className="text-xs text-gray-500 mt-1">
-                            Código de autenticación de dos factores (6 dígitos)
-                        </p>
-                    </div>
+                        {/* Expiration */}
+                        <div>
+                            <label htmlFor="expiration" className="mb-2.5 block text-sm font-medium text-gray-700 dark:text-white">
+                                Expiration Date
+                            </label>
+                            <Field 
+                                type="datetime-local" 
+                                name="expiration" 
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" 
+                            />
+                            <ErrorMessage name="expiration" component="p" className="text-red-500 text-sm mt-1" />
+                        </div>
+
+                        {/* FACode */}
+                        <div>
+                            <label htmlFor="FACode" className="mb-2.5 block text-sm font-medium text-gray-700 dark:text-white">
+                                2FA Code (Optional)
+                            </label>
+                            <Field 
+                                type="text" 
+                                name="FACode" 
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary" 
+                                placeholder="123456"
+                                maxLength={6}
+                            />
+                            <ErrorMessage name="FACode" component="p" className="text-red-500 text-sm mt-1" />
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Código de autenticación de dos factores (6 dígitos)
+                            </p>
+                        </div>
 
                     {/* State */}
                     <div>
-                        <label htmlFor="state" className="block text-lg font-medium text-gray-700">State</label>
+                        <label htmlFor="state" className="mb-2.5 block text-sm font-medium text-gray-700 dark:text-white">
+                            State
+                        </label>
                         <Field 
                             as="select" 
                             name="state" 
-                            className="w-full border rounded-md p-2"
+                            className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         >
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                             <option value="expired">Expired</option>
                         </Field>
-                        <ErrorMessage name="state" component="p" className="text-red-500 text-sm" />
+                        <ErrorMessage name="state" component="p" className="text-red-500 text-sm mt-1" />
                     </div>
 
-                    {/* Botón de enviar */}
-                    <button
-                        type="submit"
-                        className={`py-2 px-4 text-white rounded-md ${mode === 1 ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600"}`}
-                    >
-                        {mode === 1 ? "Crear" : "Actualizar"}
-                    </button>
+                    {/* Botones de acción */}
+                    <div className="flex gap-4 mt-4">
+                        <button
+                            type="submit"
+                            style={{ backgroundColor: '#16a34a', color: '#ffffff' }}
+                            className="py-2 px-6 font-semibold rounded-md hover:opacity-90"
+                        >
+                            {mode === 1 ? "Crear Sesión" : "Guardar Cambios"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCancel}
+                            style={{ backgroundColor: '#6b7280', color: '#ffffff' }}
+                            className="py-2 px-6 font-semibold rounded-md hover:opacity-90"
+                        >
+                            Descartar
+                        </button>
+                    </div>
+                    </div>
                 </Form>
             )}
         </Formik>
